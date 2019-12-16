@@ -58,7 +58,7 @@ execute Profit_Initialize
   	  			  	  	}
   	  			  	}
   	  			  	
-  	  			  	p[r][i][j] = c - sum;
+  	  			  	p[r][i][j] = sum - c;
   	  			}	  	  
   	  			
   	  			writeln(r, i, j, p[r][i][j]);		
