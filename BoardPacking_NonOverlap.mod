@@ -14,16 +14,19 @@ tuple Rectangle {
 };
 
 int nRectangle = ...;
-range rect = 1..nRectangle;
+range K = 1..nRectangle;
  
 
-Rectangle rect_array[rect] = ...;
+Rectangle rect_array[K] = ...;
 
 // Variables
 
 
-//execute
-//{
-// 	forall( r in rect )   
-// 		writeln(rect_array[r]);
-//}
+execute
+{
+  	for(r in K)
+  	{
+ 		writeln(rect_array[r]);
+ 	} 		
+}
+
