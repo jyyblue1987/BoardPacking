@@ -13,19 +13,10 @@ tuple Rectangle {
    int c;
 };
 
-tuple Position {
-   int i;
-   int j;   
-};
-
-
 int nRectangle = ...;
 range K = 1..nRectangle;
  
 Rectangle rect_array[K] = ...;
-
-// definition of A(k, i, j)
-//Position A[K] = ...;
 
 // profit
 int p[K][rows][cols];
@@ -73,9 +64,9 @@ execute Profit_Initialize
 dvar boolean x[K][rows][cols];
 
 // Objective 
-//minimize
-//  sum(k in K, i in rows, j in cols)
-//    p[k][i][j] * x[k][i][j];
+maximize
+  	sum(r in K, i in rows, j in cols)
+    	p[r][i][j] * x[r][i][j];
 
 
 // contraints
@@ -91,6 +82,6 @@ subject to {
 	  		  	x[r][u][v] <= 1;
 	  		  	
 	forall( r in K, i in rows, j in cols: i + rect_array[r].h > nRows + 1 || j + rect_array[r].w > nCols + 1 )
-	  	inFeasible:
+	  	trivialVar:
 	  		x[r][i][j] == 0;
 }	  		
