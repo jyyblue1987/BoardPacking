@@ -4,7 +4,7 @@
 		<config default="true" name="NonOverlap" category="opl">
 			<ref name="BoardPacking_NonOverlap.mod" type="model">
 			</ref>
-			<ref name="BoardPacking_NonOverlap.dat" type="data">
+			<ref name="BoardPacking.dat" type="data">
 			</ref>
 		</config>
 	</configs>
