@@ -85,7 +85,12 @@ subject to {
 	      	sum( i in rows, j in cols ) 
 	        	x[r][i][j] <= 1;
 	        	
-//	forall( i in rows, j in cols )
-//	  	nonOverlap:
-//	  		sum(r in K, )
-}
+	forall( i in rows, j in cols )
+	  	nonOverlap:
+	  		sum(r in K, u in rows, v in cols: u <= i && i < u + rect_array[r].h && v <= j && j < v + rect_array[r].w  ) // (u, v) - B(i,j,k)
+	  		  	x[r][u][v] <= 1;
+	  		  	
+	forall( r in K, i in rows, j in cols: i + rect_array[r].h > nRows + 1 || j + rect_array[r].w > nCols + 1 )
+	  	inFeasible:
+	  		x[r][i][j] == 0;
+}	  		
