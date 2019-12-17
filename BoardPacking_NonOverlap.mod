@@ -23,16 +23,16 @@ int p[K][rows][cols];
 
 execute Profit_Initialize
 {
-  	for(r in K)
+  	for(var r in K)
   	{
   	  	var w = rect_array[r].w;
   	  	var h = rect_array[r].h;
   	  	var c = rect_array[r].c;
   	  	writeln(w, h, c);
   	  	
-  	  	for(i in rows)
+  	  	for(var i in rows)
   	  	{
-  	  	  	for(j in cols)
+  	  	  	for(var j in cols)
   	  	  	{
   	  	  	  	if( i + h > nRows + 1 || j + w > nCols + 1 )
   	  				p[r][i][j] = 0;
