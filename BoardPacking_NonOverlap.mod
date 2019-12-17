@@ -61,7 +61,7 @@ execute Profit_Initialize
   	  			  	p[r][i][j] = sum - c;
   	  			}	  	  
   	  			
-  	  			writeln(r, i, j, p[r][i][j]);		
+  	  			writeln(r, '-', i, '-', j, '-', p[r][i][j]);		
   	  	  	}
   	  	}
  		
@@ -79,3 +79,13 @@ dvar boolean x[K][rows][cols];
 
 
 // contraints
+subject to {
+  	forall( r in K )
+	    eachRectangle:
+	      	sum( i in rows, j in cols ) 
+	        	x[r][i][j] <= 1;
+	        	
+//	forall( i in rows, j in cols )
+//	  	nonOverlap:
+//	  		sum(r in K, )
+}
