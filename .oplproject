@@ -7,6 +7,12 @@
 			<ref name="BoardPacking.dat" type="data">
 			</ref>
 		</config>
+		<config default="false" name="Overlap" category="opl">
+			<ref name="BoardPacking_Overlap.mod" type="model">
+			</ref>
+			<ref name="BoardPacking.dat" type="data">
+			</ref>
+		</config>
 	</configs>
 	
 </project>
