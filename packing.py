@@ -4,16 +4,13 @@ from docplex.util.environment import get_environment
 def build_packing_problem():
     mdl = Model('packing')
 
-    
-    nCols = 10
-    nRectangle = 3
-
     rect_array = [
         (5,5,3),
         (6,5,2),
         (3,6,2)
     ];
 
+    nRectangle = len(rect_array)
     K = range(nRectangle)
 
     g = [
@@ -58,6 +55,26 @@ def build_packing_problem():
 
     print(p)
 
+    # declar var
+    idx = [(r, i, j) for r in K for i in rows for j in cols ]
+    mdl.x = mdl.binary_var_dict(idx, None, None, "X")
+
+   
+    # contraints
+
+    # make sure that only one location is chosen for each rectangle
+    mdl.add_constraints(mdl.sum(mdl.x[r, i, j] for i in rows for j in cols) <= 1 for r in K)
+
+    # make sure that only one location is chosen for each rectangle
+    mdl.add_constraints(mdl.sum(mdl.x[r, u, v] for r in K for u in rows for v in cols 
+                        if u <= i and i < u + rect_array[r][1] and v <= j and j < v + rect_array[r][0] ) <= 1 
+                        for i in rows for j in cols)
+
+    mdl.add_constraints(mdl.x[r, i, j] == 0 for r in K for i in rows for j in cols if i + rect_array[r][1] > nRows or j + rect_array[r][0] > nCols )
+
+    # objective values
+    mdl.maximize(mdl.sum(mdl.x[r, i, j] * p[r][i][j] for r in K for i in rows for j in cols))
+    
     return mdl;
 
 def print_solution(mdl):
