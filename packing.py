@@ -1,8 +1,8 @@
 from docplex.mp.model import Model
 from docplex.util.environment import get_environment
 
-def build_packing_problem(rect_array, g):
-    mdl = Model('packing')
+def build_packing_nonoveray_problem(rect_array, g):
+    mdl = Model('nonoverlay_packing')
 
     nRectangle = len(rect_array)
     K = range(nRectangle)
@@ -57,7 +57,7 @@ def build_packing_problem(rect_array, g):
     # objective values
     mdl.maximize(mdl.sum(mdl.x[r, i, j] * p[r][i][j] for r in K for i in rows for j in cols))
     
-    return mdl, K, rows, cols;
+    return mdl;
 
 def print_solution(mdl, rect_array, g):
     obj = mdl.objective_value
@@ -109,7 +109,7 @@ if __name__ == '__main__':
         [0,0,0,0,0,0,0,0,0,0]
     ];
 
-    model, K, rows, cols = build_packing_problem(rect_array, g)
+    model = build_packing_nonoveray_problem(rect_array, g)
     
     # Solve the model.
     if model.solve():
@@ -119,3 +119,5 @@ if __name__ == '__main__':
             model.solution.export(fp, "json")
     else:
         print("Problem has no solution")    
+
+
