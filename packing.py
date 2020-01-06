@@ -1,29 +1,11 @@
 from docplex.mp.model import Model
 from docplex.util.environment import get_environment
 
-def build_packing_problem():
+def build_packing_problem(rect_array, g):
     mdl = Model('packing')
-
-    rect_array = [
-        (5,5,3),
-        (6,5,2),
-        (3,6,2)
-    ];
 
     nRectangle = len(rect_array)
     K = range(nRectangle)
-
-    g = [
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,1,1,1,1,1,0],
-        [0,0,0,0,1,1,1,1,1,0],
-        [0,1,1,1,1,1,1,1,1,0],
-        [0,1,1,1,1,1,1,1,1,0],
-        [0,1,1,1,1,1,1,1,1,0],
-        [0,1,1,1,1,1,1,0,0,0],
-        [0,1,1,1,1,1,1,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0]
-    ];
 
     nRows = len(g)
     nCols = len(g[0])
@@ -75,23 +57,55 @@ def build_packing_problem():
     # objective values
     mdl.maximize(mdl.sum(mdl.x[r, i, j] * p[r][i][j] for r in K for i in rows for j in cols))
     
-    return mdl;
+    return mdl, K, rows, cols;
 
-def print_solution(mdl):
+def print_solution(mdl, rect_array, g):
     obj = mdl.objective_value
+
+    nRectangle = len(rect_array)
+    K = range(nRectangle)
+
+    nRows = len(g)
+    nCols = len(g[0])
+
+    rows = range(nRows)
+    cols = range(nCols)
+
     print("* Production model solved with objective: {:g}".format(obj))
-    
+    for r in K:
+
+        for i in rows :
+            for j in cols:
+                print(mdl.x[r, i, j].solution_value)
 
 # ----------------------------------------------------------------------------
 # Solve the model and display the result
 # ----------------------------------------------------------------------------
 if __name__ == '__main__':
     # Build the model
-    model = build_packing_problem()
-    model.print_information()
+    rect_array = [
+        (5,5,3),
+        (6,5,2),
+        (3,6,2)
+    ];
+
+    g = [
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,1,1,1,1,1,0],
+        [0,0,0,0,1,1,1,1,1,0],
+        [0,1,1,1,1,1,1,1,1,0],
+        [0,1,1,1,1,1,1,1,1,0],
+        [0,1,1,1,1,1,1,1,1,0],
+        [0,1,1,1,1,1,1,0,0,0],
+        [0,1,1,1,1,1,1,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0]
+    ];
+
+    model, K, rows, cols = build_packing_problem(rect_array, g)
+    
     # Solve the model.
     if model.solve():
-        print_solution(model)
+        print_solution(model, rect_array, g)
         # Save the CPLEX solution as "solution.json" program output
         with get_environment().get_output_stream("solution.json") as fp:
             model.solution.export(fp, "json")
