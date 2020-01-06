@@ -73,10 +73,18 @@ def print_solution(mdl, rect_array, g):
 
     print("* Production model solved with objective: {:g}".format(obj))
     for r in K:
+        w = rect_array[r][0]
+        h = rect_array[r][1]
+
+        left = 0; top = 0
 
         for i in rows :
             for j in cols:
-                print(mdl.x[r, i, j].solution_value)
+                if mdl.x[r, i, j].solution_value > 0 :
+                    left = j + 1
+                    top = i + 1
+                    print(top, left, w, h)
+
 
 # ----------------------------------------------------------------------------
 # Solve the model and display the result
