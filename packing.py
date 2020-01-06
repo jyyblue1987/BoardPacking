@@ -59,6 +59,48 @@ def build_packing_nonoveray_problem(rect_array, g):
     
     return mdl;
 
+
+def build_packing_overay_problem(rect_array, g):
+    mdl = Model('overlay_packing')
+
+    nRectangle = len(rect_array)
+    K = range(nRectangle)
+
+    nRows = len(g)
+    nCols = len(g[0])
+
+    rows = range(nRows)
+    cols = range(nCols)
+    
+    # declar var
+    idx = [(r, i, j) for r in K for i in rows for j in cols ]
+    mdl.x = mdl.binary_var_dict(idx, None, None, "X")
+
+    idy = [(i, j) for i in rows for j in cols ]
+    mdl.y = mdl.binary_var_dict(idy, None, None, "Y")
+    
+    # contraints
+
+    # make sure that only one location is chosen for each rectangle
+    mdl.add_constraints(mdl.sum(mdl.x[r, i, j] for i in rows for j in cols) <= 1 for r in K)
+
+    # bigger
+    mdl.add_constraints(mdl.sum(mdl.x[r, u, v] for r in K for u in rows for v in cols 
+                        if u <= i and i < u + rect_array[r][1] and v <= j and j < v + rect_array[r][0] ) >= mdl.y[i, j] 
+                        for i in rows for j in cols if g[i][j] > 0)
+
+    # smaller
+    mdl.add_constraints(mdl.sum(mdl.x[r, u, v] for r in K for u in rows for v in cols 
+                        if u <= i and i < u + rect_array[r][1] and v <= j and j < v + rect_array[r][0] ) <= nRectangle * mdl.y[i, j] 
+                        for i in rows for j in cols if g[i][j] < 0)   
+
+    mdl.add_constraints(mdl.x[r, i, j] == 0 for r in K for i in rows for j in cols if i + rect_array[r][1] > nRows or j + rect_array[r][0] > nCols )
+
+    # objective values
+    mdl.maximize(mdl.sum(mdl.y[i, j] * g[i][j] for i in rows for j in cols) - mdl.sum(mdl.x[r, i, j] * rect_array[r][2] for r in K for i in rows for j in cols))
+    
+    return mdl;    
+
 def print_solution(mdl, rect_array, g):
     obj = mdl.objective_value
 
@@ -115,9 +157,21 @@ if __name__ == '__main__':
     if model.solve():
         print_solution(model, rect_array, g)
         # Save the CPLEX solution as "solution.json" program output
-        with get_environment().get_output_stream("solution.json") as fp:
+        with get_environment().get_output_stream("solution_nonoverlay.json") as fp:
             model.solution.export(fp, "json")
     else:
         print("Problem has no solution")    
+
+
+    model = build_packing_overay_problem(rect_array, g)
+    
+    # Solve the model.
+    if model.solve():
+        print_solution(model, rect_array, g)
+        # Save the CPLEX solution as "solution.json" program output
+        with get_environment().get_output_stream("solution_overlay.json") as fp:
+            model.solution.export(fp, "json")
+    else:
+        print("Problem has no solution")        
 
 
