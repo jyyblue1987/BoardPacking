@@ -46,8 +46,8 @@ def build_packing_problem():
                     end_row = i + h
                     end_col = j + w
                     
-                    for ii in range(i, end_row - 1):
-                        for jj in range(j, end_col - 1):
+                    for ii in range(i, end_row):
+                        for jj in range(j, end_col):
                             sum += g[ii][jj]
 
                     p[r][i][j] = sum - c        
