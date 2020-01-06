@@ -1,7 +1,7 @@
 from docplex.mp.model import Model
 from docplex.util.environment import get_environment
 
-def build_packing_nonoveray_problem(rect_array, g):
+def build_packing_nonoverlay_problem(rect_array, g):
     mdl = Model('nonoverlay_packing')
 
     nRectangle = len(rect_array)
@@ -60,7 +60,7 @@ def build_packing_nonoveray_problem(rect_array, g):
     return mdl;
 
 
-def build_packing_overay_problem(rect_array, g):
+def build_packing_overlay_problem(rect_array, g):
     mdl = Model('overlay_packing')
 
     nRectangle = len(rect_array)
@@ -135,8 +135,8 @@ if __name__ == '__main__':
     # Build the model
     rect_array = [
         (5,5,3),
-        (6,5,2),
-        (3,6,2)
+        (5,6,2),
+        (6,3,2)
     ];
 
     g = [
@@ -151,7 +151,7 @@ if __name__ == '__main__':
         [0,0,0,0,0,0,0,0,0,0]
     ];
 
-    model = build_packing_nonoveray_problem(rect_array, g)
+    model = build_packing_nonoverlay_problem(rect_array, g)
     
     # Solve the model.
     if model.solve():
@@ -163,7 +163,7 @@ if __name__ == '__main__':
         print("Problem has no solution")    
 
 
-    model = build_packing_overay_problem(rect_array, g)
+    model = build_packing_overlay_problem(rect_array, g)
     
     # Solve the model.
     if model.solve():
