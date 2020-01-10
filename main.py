@@ -245,6 +245,8 @@ class Problem:
     
     def generate(self, class_num, num_rows, num_cols, num_squares, size_squares, chk_random):
         self.board = []
+        count = 0
+        sum1 = 0
         for i in range(num_rows):
             row = []
             for j in range(num_cols):
@@ -260,6 +262,10 @@ class Problem:
                 else :
                     val = random.randint(0, 1)       
 
+                if val > -10000 :
+                    sum1 += val 
+                    count += 1;   
+
                 row.append(val)
 
             self.board.append(row)
@@ -269,6 +275,10 @@ class Problem:
         
         min_height = 2
         min_width = 2
+
+        avg = 0
+        if count > 0 :
+            avg = int(sum1 / count)
         
         self.squares = []
         for i in range(num_squares):
@@ -279,7 +289,15 @@ class Problem:
                 height = size_squares
                 width = size_squares
 
-            cost = random.randint(1, MAX_COST)
+            # If we buy the squares (should be an option), the cost should be something which is not too
+            # big or not too small comparing to the
+            # gained values in the board cells
+            min_cost = (avg - 1) * width * height  
+            if min_cost < 1 :
+                min_cost = 1
+                 
+            max_cost = (avg + 1) * width * height   
+            cost = random.randint(min_cost, max_cost)
             sqare = Square(height, width, cost, -1, -1)
             self.squares.append(sqare)
     
