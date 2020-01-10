@@ -571,17 +571,21 @@ class MainWindow(Frame):
         self.tblSquare = Treeview(frmBoard, height=25)
         self.tblSquare.pack(fill=BOTH, side=RIGHT)
         
-        self.tblSquare["columns"] = ("one" ,"two", "three")
+        self.tblSquare["columns"] = ("one" ,"two", "three", "four", "five")
         
         self.tblSquare.column("#0", width=40, stretch=NO)
-        self.tblSquare.column("one", width=100, stretch=NO)
-        self.tblSquare.column("two", width=100, stretch=NO)
-        self.tblSquare.column("three", width=100, stretch=NO)
+        self.tblSquare.column("one", width=60, stretch=NO)
+        self.tblSquare.column("two", width=60, stretch=NO)
+        self.tblSquare.column("three", width=60, stretch=NO)
+        self.tblSquare.column("four", width=60, stretch=NO)
+        self.tblSquare.column("five", width=60, stretch=NO)
         
         self.tblSquare.heading("#0",text="No",anchor=W)
         self.tblSquare.heading("one", text="Height",anchor=W)
         self.tblSquare.heading("two", text="Width",anchor=W)
         self.tblSquare.heading("three", text="Cost",anchor=W) 
+        self.tblSquare.heading("four", text="Board",anchor=W) 
+        self.tblSquare.heading("five", text="Profit",anchor=W) 
         
         self.tblSquare.tag_configure("grey", background="grey")
                 
@@ -711,11 +715,36 @@ class MainWindow(Frame):
         table = self.tblSquare
         table.delete(*table.get_children())
         
+        total_cost = 0
+        total_value = 0
+        total_profit = 0
+        total_count = 0
         for (key, square) in enumerate(squares):
-            if key % 2 == 0:
-                table.insert("", "end", None, text=str(key + 1), values=(str(square.height), str(square.width), str(square.cost)),)
+            value = ""
+            sum1 = 0
+            if square.row >= 0 and square.column >= 0: 
+                for i in range(square.row, square.row + square.height):
+                    for j in range(square.column, square.column + square.width):
+                        sum1 += board[i][j]
+
+                value = sum1        
+
+            if value == "":
+                profit = ""
             else:
-                table.insert("", "end", None, text=str(key + 1), values=(str(square.height), str(square.width), str(square.cost)), tags=("grey",))
+                profit = value - square.cost    
+                total_cost += square.cost 
+                total_value += value
+                total_profit += profit
+                
+            if key % 2 == 0:
+                table.insert("", "end", None, text=str(key + 1), values=(str(square.height), str(square.width), str(square.cost), str(value), str(profit)),)
+            else:
+                table.insert("", "end", None, text=str(key + 1), values=(str(square.height), str(square.width), str(square.cost), str(value), str(profit)), tags=("grey",))
+
+            total_count += 1
+
+        table.insert("", "end", None, text=str(total_count + 1), values=("Total", "", str(total_cost), str(total_value), str(total_profit)), tags=("green",))
         
         if solution:
             for square in squares:
