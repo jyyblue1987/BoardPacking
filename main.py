@@ -295,7 +295,7 @@ class Problem:
             min_cost = (avg - 1) * width * height  
             if min_cost < 1 :
                 min_cost = 1
-                 
+
             max_cost = (avg + 1) * width * height   
             cost = random.randint(min_cost, max_cost)
             sqare = Square(height, width, cost, -1, -1)
@@ -486,6 +486,66 @@ class ProblemWindow:
         self.status = False
         self.top.destroy()
 
+class CellEditWindow:
+    def __init__(self, parent, row_num, col_num, cell_value):
+        self.top = tk.Toplevel(parent)
+        self.top.transient(parent)
+        self.top.grab_set()
+
+        self.row_num = row_num
+        self.col_num = col_num
+        self.cell_value = cell_value
+        
+        self.status = False
+        
+        self.initUI()
+
+    def initUI(self):
+        top = self.top
+        top.geometry("280x100+600+400")
+        
+        frmMain = Frame(top, padx = 10, pady = 5)
+        frmMain.pack()
+
+        frmCellValue = Frame(frmMain, pady = 5)
+        frmCellValue.pack(fill=X)
+
+        label_str = "({}, {}): ".format(self.row_num + 1, self. col_num + 1)
+        lblCellValue = Label(frmCellValue, text = label_str)
+        lblCellValue.pack(side=LEFT)
+        
+        entry_text = tk.StringVar()
+        self.txtCellValue = Entry(frmCellValue, textvariable=entry_text)
+        self.txtCellValue.pack(side=RIGHT)
+        entry_text.set(self.cell_value)
+        self.txtCellValue.focus()
+                
+        frmButtons = Frame(frmMain, pady = 5)
+        frmButtons.pack(fill = X, expand=True)
+
+        btnOK = Button(frmButtons, text = "OK", width = 10, command = self.ok)
+        btnOK.pack(side=LEFT, expand=True)
+        
+        btnCancel = Button(frmButtons, text = "Cancel", width = 10, command = self.cancel)
+        btnCancel.pack(side=RIGHT, expand=True)
+        
+    def ok(self):
+        valid = True
+        
+        try:
+            self.cell_value = int(self.txtCellValue.get())
+        except:
+            valid = False
+
+        if valid:            
+            self.status = True
+            self.top.destroy()
+        
+    def cancel(self):
+        self.status = False
+        self.top.destroy()
+
+
 class MainWindow(Frame):
     def __init__(self):
         super().__init__()
@@ -502,6 +562,8 @@ class MainWindow(Frame):
         
         self.cnsBoard = Canvas(frmBoard, highlightthickness=1, highlightbackground="grey")
         self.cnsBoard.pack(fill=BOTH, expand=True, side=LEFT)
+        self.cnsBoard.bind("<Key>", self.key)
+        self.cnsBoard.bind("<Button-1>", self.callback)
         
         frmBoardSpace1 = Frame(frmBoard, width=10)
         frmBoardSpace1.pack(fill=BOTH, side=LEFT)
@@ -679,6 +741,52 @@ class MainWindow(Frame):
                 text_top = rect_top + cell_size / 2
                 text_left = rect_left + cell_size / 2
                 canvas.create_text(text_left, text_top, text = str(element))
+
+    def key(self, event):
+        print("pressed", repr(event.char))
+
+    def callback(self, event):    
+        canvas = self.cnsBoard
+        board = self.problem.board
+        squares = self.problem.squares
+        
+        if board is None or len(board) == 0 or len(board[0]) == 0:
+            return
+        
+        num_rows = len(board)
+        num_columns = len(board[0])
+
+        canvas_height = canvas.winfo_height()        
+        canvas_width = canvas.winfo_width()
+        
+        cell_size = min(canvas_height / num_rows, canvas_width / num_columns)
+        board_height = cell_size * num_rows
+        board_width = cell_size * num_columns
+        
+        board_top = (canvas_height - board_height) / 2
+        board_left = (canvas_width - board_width) / 2
+        
+        col_num = int((event.x - board_left) / cell_size)
+        row_num = int((event.y - board_top) / cell_size)
+        if col_num < 0 or col_num >= num_columns :
+            return;
+        if row_num < 0 or row_num >= num_rows :
+            return;
+
+        # display cell edit dialog
+        cell_edit_dialog = CellEditWindow(root, row_num, col_num, board[row_num][col_num])
+        
+        root.wait_window(cell_edit_dialog.top)
+        
+        if not cell_edit_dialog.status:
+            return
+        
+        cell_value = cell_edit_dialog.cell_value
+        board[row_num][col_num] = cell_value
+        self.display_problem()
+
+        print(row_num, col_num);
+
                 
 app = MainWindow()
 
