@@ -249,11 +249,11 @@ class Problem:
             row = []
             for j in range(num_cols):
                 val = 1
-                if class_num == 1 :
+                if class_num == 1 : # [0, 9]
                     val = random.randint(0, 9)
-                elif class_num == 2 :
+                elif class_num == 2 :   # [-9, 9]
                     val = random.randint(-9, 9)    
-                elif class_num == 3 :
+                elif class_num == 3 :   # [-10000, 0 - 9]
                     val = random.randint(0, 9)    
                     if random.randint(0, 100) < 5 :
                         val = -10000
@@ -614,12 +614,19 @@ class MainWindow(Frame):
         for i in range(num_rows):
             for j in range(num_columns):
                 element = board[i][j]
-                if element > 0:
+                if element != 0:
                     rect_top = i * cell_size + board_top
                     rect_left = j * cell_size + board_left
                     rect_bottom = rect_top + cell_size
-                    rect_right = rect_left + cell_size
-                    canvas.create_rectangle(rect_left, rect_top, rect_right, rect_bottom, fill="lightgrey", outline="")
+                    rect_right = rect_left + cell_size                                        
+                    if element > 0 :
+                        canvas.create_rectangle(rect_left, rect_top, rect_right, rect_bottom, fill="lightgrey", outline="")
+                    elif element > -10000 :    
+                        canvas.create_rectangle(rect_left, rect_top, rect_right, rect_bottom, fill="darkgrey", outline="")
+                    else :
+                        canvas.create_rectangle(rect_left, rect_top, rect_right, rect_bottom, fill="darkred", outline="")
+
+
                     
         table = self.tblSquare
         table.delete(*table.get_children())
