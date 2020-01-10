@@ -243,7 +243,7 @@ class Problem:
             for row in self.squares:
                 fp.write(str(row.height) + "," + str(row.width) + "," + str(row.cost) + "\n")
     
-    def generate(self, num_rows, num_cols, num_squares):
+    def generate(self, num_rows, num_cols, num_squares, size_squares, chk_random):
         self.board = []
         for i in range(num_rows):
             row = []
@@ -259,8 +259,13 @@ class Problem:
         
         self.squares = []
         for i in range(num_squares):
-            height = random.randint(min_height, max_height)
-            width = random.randint(min_width, max_width)
+            if chk_random :
+                height = random.randint(min_height, max_height)
+                width = random.randint(min_width, max_width)
+            else :
+                height = size_squares
+                width = size_squares
+                
             cost = random.randint(1, MAX_COST)
             sqare = Square(height, width, cost, -1, -1)
             self.squares.append(sqare)
@@ -334,6 +339,8 @@ class ProblemWindow:
         self.num_rows = 0
         self.num_columns = 0
         self.num_squares = 0
+        self.size_squares = 0
+        self.chk_random = IntVar()
 
         self.status = False
         
@@ -341,7 +348,7 @@ class ProblemWindow:
 
     def initUI(self):
         top = self.top
-        top.geometry("280x140+400+400")
+        top.geometry("280x200+600+600")
         
         frmMain = Frame(top, padx = 10, pady = 5)
         frmMain.pack()
@@ -372,10 +379,25 @@ class ProblemWindow:
         
         self.txtNumSquares = Entry(frmNumSquares)
         self.txtNumSquares.pack(side=RIGHT)
+
+        frmSizeSquares = Frame(frmMain, pady = 5)
+        frmSizeSquares.pack(fill=X)
+
+        lblSizeSquares = Label(frmSizeSquares, text = "Size of squares: ")
+        lblSizeSquares.pack(side=LEFT)
+
+        self.txtSizeSquares = Entry(frmSizeSquares)
+        self.txtSizeSquares.pack(side=RIGHT)
+
+        frmChkRandom = Frame(frmMain, pady = 5)
+        frmChkRandom.pack(fill=X)
+
+        self.chkRandom = Checkbutton(frmChkRandom, text="Random", variable=self.chk_random)
+        self.chkRandom.pack(side=LEFT)
         
         frmButtons = Frame(frmMain, pady = 5)
         frmButtons.pack(fill = X, expand=True)
-        
+
         btnOK = Button(frmButtons, text = "OK", width = 10, command = self.ok)
         btnOK.pack(side=LEFT, expand=True)
         
@@ -399,6 +421,11 @@ class ProblemWindow:
             self.num_squares = int(self.txtNumSquares.get())
         except:
             valid = False
+
+        try:
+            self.size_squares = int(self.txtSizeSquares.get())
+        except:
+            valid = False    
         
         if valid:
             self.status = True
@@ -406,7 +433,7 @@ class ProblemWindow:
         else:
             self.num_rows = 0
             self.num_columns = 0
-            self.num_squares = 0
+            self.num_squares = 0            
         
     def cancel(self):
         self.status = False
@@ -505,8 +532,10 @@ class MainWindow(Frame):
         num_rows = problem_dialog.num_rows
         num_columns = problem_dialog.num_columns
         num_squares = problem_dialog.num_squares
-        
-        self.problem.generate(num_rows, num_columns, num_squares)
+        size_squares = problem_dialog.size_squares
+        chk_random = problem_dialog.chk_random.get()
+
+        self.problem.generate(num_rows, num_columns, num_squares, size_squares, chk_random)
         self.cnsBoard.delete("all")
         self.display_problem()
     
