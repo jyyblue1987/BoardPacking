@@ -440,7 +440,7 @@ class ProblemWindow:
         frmChkRandom = Frame(frmMain, pady = 5)
         frmChkRandom.pack(fill=X)
 
-        self.chkRandom = Checkbutton(frmChkRandom, text="Random Squares Size", variable=self.chk_random)
+        self.chkRandom = Checkbutton(frmChkRandom, text="Random Squares Size", variable=self.chk_random,command=self.onCheckRandom)
         self.chkRandom.pack(side=LEFT)
         
         frmButtons = Frame(frmMain, pady = 5)
@@ -451,6 +451,12 @@ class ProblemWindow:
         
         btnCancel = Button(frmButtons, text = "Cancel", width = 10, command = self.cancel)
         btnCancel.pack(side=RIGHT, expand=True)
+
+    def onCheckRandom(self):
+        if self.chk_random.get():
+            self.txtSizeSquares.config(state='disabled') 
+        else:    
+            self.txtSizeSquares.config(state='normal') 
         
     def ok(self):
         valid = True
@@ -476,7 +482,10 @@ class ProblemWindow:
             valid = False
 
         try:
-            self.size_squares = int(self.txtSizeSquares.get())
+            if self.chk_random.get():                
+                self.size_squares = 0
+            else:    
+                self.size_squares = int(self.txtSizeSquares.get())                
         except:
             valid = False    
         
