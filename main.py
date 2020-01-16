@@ -592,6 +592,7 @@ class MainWindow(Frame):
         self.tblSquare.heading("five", text="Profit",anchor=W) 
         
         self.tblSquare.tag_configure("grey", background="grey")
+        self.tblSquare.tag_configure("white", background="white")
                 
         frmBoardSpace2 = Frame(self, height=10)
         frmBoardSpace2.pack(fill=BOTH)
@@ -715,10 +716,31 @@ class MainWindow(Frame):
                         canvas.create_rectangle(rect_left, rect_top, rect_right, rect_bottom, fill="darkred", outline="")
 
 
+        if solution:
+            num = 0
+            for square in squares:
+                height = square.height
+                width = square.width
+                cost = square.cost
+                row = square.row
+                column = square.column
+                
+                square_top = row * cell_size + board_top
+                square_left = column * cell_size + board_left
+                square_bottom = square_top + height * cell_size
+                square_right = square_left + width * cell_size
+                
+                fill = "#" + ("%06x" % random.randint(0, 16777215))
+                canvas.create_rectangle(square_left, square_top, square_right, square_bottom, fill=fill, outline="")
+
+                self.tblSquare.tag_configure(str(num + 1), background=fill)
+
+                num += 1
+                
                     
         table = self.tblSquare
         table.delete(*table.get_children())
-        
+ 
         total_cost = 0
         total_value = 0
         total_profit = 0
@@ -740,31 +762,22 @@ class MainWindow(Frame):
                 total_cost += square.cost 
                 total_value += value
                 total_profit += profit
-                
-            if key % 2 == 0:
-                table.insert("", "end", None, text=str(key + 1), values=(str(square.height), str(square.width), str(square.row + 1), str(square.column + 1), str(square.cost), str(value), str(profit)),)
-            else:
-                table.insert("", "end", None, text=str(key + 1), values=(str(square.height), str(square.width), str(square.row + 1), str(square.column + 1), str(square.cost), str(value), str(profit)), tags=("grey",))
+            
+            if solution:
+                tags = (str(key + 1),)
+            else:                
+                if key % 2 == 0:
+                    tags = ("white",)
+                else:
+                    tags = ("grey",)                    
+
+            table.insert("", "end", None, text=str(key + 1), values=(str(square.height), str(square.width), str(square.row + 1), str(square.column + 1), str(square.cost), str(value), str(profit)), tags=tags)
 
             total_count += 1
 
-        table.insert("", "end", None, text=str(total_count + 1), values=("Total", "", str(total_cost), str(total_value), str(total_profit)), tags=("green",))
+        table.insert("", "end", None, text=str(total_count + 1), values=("Total", "", "", "", str(total_cost), str(total_value), str(total_profit)), tags=("green",))
         
-        if solution:
-            for square in squares:
-                height = square.height
-                width = square.width
-                cost = square.cost
-                row = square.row
-                column = square.column
-                
-                square_top = row * cell_size + board_top
-                square_left = column * cell_size + board_left
-                square_bottom = square_top + height * cell_size
-                square_right = square_left + width * cell_size
-                
-                fill = "#" + ("%06x" % random.randint(0, 16777215))
-                canvas.create_rectangle(square_left, square_top, square_right, square_bottom, fill=fill, outline="")
+        
                 
         for i in range(num_rows):
             for j in range(num_columns):
