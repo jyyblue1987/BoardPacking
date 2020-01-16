@@ -571,11 +571,13 @@ class MainWindow(Frame):
         self.tblSquare = Treeview(frmBoard, height=25)
         self.tblSquare.pack(fill=BOTH, side=RIGHT)
         
-        self.tblSquare["columns"] = ("one" ,"two", "three", "four", "five")
+        self.tblSquare["columns"] = ("one" ,"two", "top", "left", "three", "four", "five")
         
         self.tblSquare.column("#0", width=40, stretch=NO)
         self.tblSquare.column("one", width=60, stretch=NO)
         self.tblSquare.column("two", width=60, stretch=NO)
+        self.tblSquare.column("top", width=60, stretch=NO)
+        self.tblSquare.column("left", width=60, stretch=NO)
         self.tblSquare.column("three", width=60, stretch=NO)
         self.tblSquare.column("four", width=60, stretch=NO)
         self.tblSquare.column("five", width=60, stretch=NO)
@@ -583,6 +585,8 @@ class MainWindow(Frame):
         self.tblSquare.heading("#0",text="No",anchor=W)
         self.tblSquare.heading("one", text="Height",anchor=W)
         self.tblSquare.heading("two", text="Width",anchor=W)
+        self.tblSquare.heading("top", text="Top",anchor=W)
+        self.tblSquare.heading("left", text="Left",anchor=W)
         self.tblSquare.heading("three", text="Cost",anchor=W) 
         self.tblSquare.heading("four", text="Board",anchor=W) 
         self.tblSquare.heading("five", text="Profit",anchor=W) 
@@ -738,9 +742,9 @@ class MainWindow(Frame):
                 total_profit += profit
                 
             if key % 2 == 0:
-                table.insert("", "end", None, text=str(key + 1), values=(str(square.height), str(square.width), str(square.cost), str(value), str(profit)),)
+                table.insert("", "end", None, text=str(key + 1), values=(str(square.height), str(square.width), str(square.row + 1), str(square.column + 1), str(square.cost), str(value), str(profit)),)
             else:
-                table.insert("", "end", None, text=str(key + 1), values=(str(square.height), str(square.width), str(square.cost), str(value), str(profit)), tags=("grey",))
+                table.insert("", "end", None, text=str(key + 1), values=(str(square.height), str(square.width), str(square.row + 1), str(square.column + 1), str(square.cost), str(value), str(profit)), tags=("grey",))
 
             total_count += 1
 
