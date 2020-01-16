@@ -380,7 +380,7 @@ class ProblemWindow:
 
     def initUI(self):
         top = self.top
-        top.geometry("280x230+600+400")
+        top.geometry("280x260+600+400")
         
         frmMain = Frame(top, padx = 10, pady = 5)
         frmMain.pack()
@@ -422,7 +422,7 @@ class ProblemWindow:
         frmNumSquares = Frame(frmMain, pady = 5)
         frmNumSquares.pack(fill=X)
         
-        lblNumSquares = Label(frmNumSquares, text = "Number of squares: ")
+        lblNumSquares = Label(frmNumSquares, text = "Number of rectangles: ")
         lblNumSquares.pack(side=LEFT)
         
         self.txtNumSquares = Entry(frmNumSquares)
@@ -431,7 +431,7 @@ class ProblemWindow:
         frmSizeSquares = Frame(frmMain, pady = 5)
         frmSizeSquares.pack(fill=X)
 
-        lblSizeSquares = Label(frmSizeSquares, text = "Size of squares: ")
+        lblSizeSquares = Label(frmSizeSquares, text = "Size of rectangles: ")
         lblSizeSquares.pack(side=LEFT)
 
         self.txtSizeSquares = Entry(frmSizeSquares)
