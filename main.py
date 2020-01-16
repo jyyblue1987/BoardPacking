@@ -6,6 +6,7 @@ from tkinter import filedialog
 from tkinter import simpledialog
 import tkinter as tk
 import time
+import tkinter.ttk as ttk
 
 import os
 import random
@@ -387,13 +388,18 @@ class ProblemWindow:
         frmNumInputClass = Frame(frmMain, pady = 5)
         frmNumInputClass.pack(fill=X)
 
-        lblNumInputClass = Label(frmNumInputClass, text = "Input Class(1/2/3): ")
+        lblNumInputClass = Label(frmNumInputClass, text = "Input Class: ")
         lblNumInputClass.pack(side=LEFT)
-        
-        entry_text = tk.StringVar()
-        self.txtfrmNumInputClass = Entry(frmNumInputClass, textvariable=entry_text)
-        self.txtfrmNumInputClass.pack(side=RIGHT)
-        entry_text.set("1")
+
+        # entry_text = tk.StringVar()
+        # self.txtfrmNumInputClass = Entry(frmNumInputClass, textvariable=entry_text)
+        # self.txtfrmNumInputClass.pack(side=RIGHT)
+        # entry_text.set("1")
+
+        self.cb = ttk.Combobox(frmNumInputClass, values=("1", "2", "3", "4"))
+        self.cb.set("1")
+        self.cb.pack(side=RIGHT)
+        # self.cb.bind('<<ComboboxSelected>>', on_select)
         
         frmNumRows = Frame(frmMain, pady = 5)
         frmNumRows.pack(fill=X)
@@ -450,7 +456,7 @@ class ProblemWindow:
         valid = True
         
         try:
-            self.class_num = int(self.txtfrmNumInputClass.get())
+            self.class_num = int(self.cb.get())
         except:
             valid = False
 
