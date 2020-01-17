@@ -560,6 +560,99 @@ class CellEditWindow:
         self.status = False
         self.top.destroy()
 
+class RectangleEditWindow:
+    def __init__(self, parent, width, height, cost):
+        self.top = tk.Toplevel(parent)
+        self.top.transient(parent)
+        self.top.grab_set()
+
+        self.width = width
+        self.height = height
+        self.cost = cost
+        
+        self.status = False
+        
+        self.initUI()
+
+    def initUI(self):
+        top = self.top
+        top.geometry("280x200+600+400")
+        
+        frmMain = Frame(top, padx = 10, pady = 5)
+        frmMain.pack()
+
+        # height 
+        frmHeight = Frame(frmMain, pady = 5)
+        frmHeight.pack(fill=X)
+
+        lblHeightValue = Label(frmHeight, text = "Height:  ")
+        lblHeightValue.pack(side=LEFT)
+        
+        height_text = tk.StringVar()
+        height_text.set(self.height)
+        self.txtHeight = Entry(frmHeight, textvariable=height_text)
+        self.txtHeight.pack(side=RIGHT)
+        self.txtHeight.focus()
+
+        # width
+        frmWidth = Frame(frmMain, pady = 5)
+        frmWidth.pack(fill=X)
+
+        lblWidthValue = Label(frmWidth, text = "Width:  "  )
+        lblWidthValue.pack(side=LEFT)
+        
+        width_text = tk.StringVar()
+        width_text.set(self.width)
+        self.txtWidth = Entry(frmWidth, textvariable=width_text)
+        self.txtWidth.pack(side=RIGHT)
+
+        # cost 
+        frmCost = Frame(frmMain, pady = 5)
+        frmCost.pack(fill=X)
+
+        lblCostValue = Label(frmCost, text = "Cost:  ")
+        lblCostValue.pack(side=LEFT)
+        
+        cost_text = tk.StringVar()
+        cost_text.set(self.cost)
+        self.txtCost = Entry(frmCost, textvariable=cost_text)
+        self.txtCost.pack(side=RIGHT)
+                
+        frmButtons = Frame(frmMain, pady = 5)
+        frmButtons.pack(fill = X, expand=True)
+
+        btnOK = Button(frmButtons, text = "OK", width = 10, command = self.ok)
+        btnOK.pack(side=LEFT, expand=True)
+        
+        btnCancel = Button(frmButtons, text = "Cancel", width = 10, command = self.cancel)
+        btnCancel.pack(side=RIGHT, expand=True)
+        
+    def ok(self):
+        valid = True
+        
+        try:
+            self.width = int(self.txtWidth.get())
+        except:
+            valid = False
+
+        try:
+            self.height = int(self.txtHeight.get())
+        except:
+            valid = False
+
+        try:
+            self.cost = int(self.txtCost.get())
+        except:
+            valid = False        
+
+        if valid:            
+            self.status = True
+            self.top.destroy()
+        
+    def cancel(self):
+        self.status = False
+        self.top.destroy()
+
 
 class MainWindow(Frame):
     def __init__(self):
@@ -585,6 +678,8 @@ class MainWindow(Frame):
         
         self.tblSquare = Treeview(frmBoard, height=25)
         self.tblSquare.pack(fill=BOTH, side=RIGHT)
+
+        self.tblSquare.bind("<Double-Button-1>", self.on_double_click_table)
         
         self.tblSquare["columns"] = ("one" ,"two", "top", "left", "three", "four", "five")
         
@@ -848,6 +943,32 @@ class MainWindow(Frame):
 
         print(row_num, col_num);
 
+    def on_double_click_table(self, event):
+        item_id = event.widget.focus()
+        item = event.widget.item(item_id)
+
+        num = int(item['text']);
+        values = item['values']        
+        
+        # display rectangle edit dialog
+        dialog = RectangleEditWindow(root, values[0], values[1], values[4])
+        
+        root.wait_window(dialog.top)
+        
+        if not dialog.status:
+            return
+        
+        width = dialog.width
+        height = dialog.height
+        cost = dialog.cost
+
+        squares = self.problem.squares
+        square = Square(height, width, cost, -1, -1)
+        squares[num - 1] = square
+        
+        print(item_id, width, height, cost)
+
+        self.display_problem()
                 
 app = MainWindow()
 
