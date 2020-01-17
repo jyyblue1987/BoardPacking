@@ -125,6 +125,7 @@ class Problem:
     def __init__(self):
         self.board = None
         self.squares = None
+        self.class_num = 1
         
     def load(self, filename):
         with open(filename) as fp:
@@ -208,6 +209,8 @@ class Problem:
             self.squares.append(square)
             
         i = 1
+
+        self.class_num = 1
                 
     def save(self, filename):
         with open(filename, 'w') as fp:
@@ -246,6 +249,7 @@ class Problem:
     
     def generate(self, class_num, num_rows, num_cols, num_squares, size_squares, chk_random):
         self.board = []
+        self.class_num = class_num 
         count = 0
         sum1 = 0
         for i in range(num_rows):
@@ -301,6 +305,31 @@ class Problem:
             cost = random.randint(min_cost, max_cost)
             sqare = Square(height, width, cost, -1, -1)
             self.squares.append(sqare)
+
+    def refreshValues(self):
+        num_rows = len(self.board)
+        num_cols = len(self.board[0]) 
+        self.board = []
+        class_num = self.class_num
+        for i in range(num_rows):
+            row = []
+            for j in range(num_cols):
+                val = 1
+                if class_num == 1 : # [0, 9]
+                    val = random.randint(0, 9)
+                elif class_num == 2 :   # [-9, 9]
+                    val = random.randint(-9, 9)    
+                elif class_num == 3 :   # [-10000, 0 - 9]
+                    val = random.randint(0, 9)    
+                    if random.randint(0, 100) < 5 :
+                        val = -10000
+                else :
+                    val = random.randint(0, 1)       
+
+                row.append(val)
+
+            self.board.append(row)
+     
     
     def solve(self, overlap):
         if self.board is None or self.squares is None:
@@ -735,6 +764,13 @@ class MainWindow(Frame):
         
         self.btnImport = Button(frmControl, text="Import Problem", width=22, command=self.import_problem)
         self.btnImport.pack(fill=Y, expand=False, side=RIGHT)
+
+        frmBoardSpace6 = Frame(frmControl, width=14)
+        frmBoardSpace6.pack(fill=Y, expand=False, side=RIGHT)
+        
+        self.btnBoard = Button(frmControl, text="Refresh Board", width=22, command=self.refresh_board)
+        self.btnBoard.pack(fill=Y, expand=False, side=RIGHT)
+        
         
     def import_problem(self):
         filename = filedialog.askopenfilename(title = "Select file",filetypes = (("text files","*.txt"),("all files","*.*")))
@@ -765,6 +801,11 @@ class MainWindow(Frame):
         chk_random = problem_dialog.chk_random.get()
 
         self.problem.generate(class_num, num_rows, num_columns, num_squares, size_squares, chk_random)
+        self.cnsBoard.delete("all")
+        self.display_problem()
+
+    def refresh_board(self):            
+        self.problem.refreshValues()
         self.cnsBoard.delete("all")
         self.display_problem()
     
@@ -949,6 +990,10 @@ class MainWindow(Frame):
 
         num = int(item['text']);
         values = item['values']        
+
+        squares = self.problem.squares
+        if num > len(squares):
+            return;
         
         # display rectangle edit dialog
         dialog = RectangleEditWindow(root, values[0], values[1], values[4])
@@ -962,7 +1007,6 @@ class MainWindow(Frame):
         height = dialog.height
         cost = dialog.cost
 
-        squares = self.problem.squares
         square = Square(height, width, cost, -1, -1)
         squares[num - 1] = square
         
