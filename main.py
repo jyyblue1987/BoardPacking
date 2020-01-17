@@ -361,7 +361,7 @@ class Problem:
         # model.parameters.threads = 10
 
         # Solve the model.
-        if model.solve():
+        if model.solve(log_output=True):
             obj = model.objective_value
             print("objective: {:g}".format(obj))
             for r in range(num_squares):
