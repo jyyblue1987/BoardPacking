@@ -10,6 +10,7 @@ import tkinter.ttk as ttk
 
 import os
 import random
+import colorsys
 from collections import namedtuple
 from docplex.mp.model import Model
 
@@ -882,6 +883,11 @@ class MainWindow(Frame):
                 square_right = square_left + width * cell_size
                 
                 fill = "#" + ("%06x" % random.randint(0, 16777215))
+                h,s,l = random.random(), 0.5 + random.random()/2.0, 0.4 + random.random()/5.0
+                r,g,b = [int(256*i) for i in colorsys.hls_to_rgb(h,l,s)]
+
+                fill = '#%02x%02x%02x' % (r, g, b)
+
                 canvas.create_rectangle(square_left, square_top, square_right, square_bottom, fill=fill, outline="")
 
                 self.tblSquare.tag_configure(str(num + 1), background=fill)
