@@ -126,6 +126,7 @@ class Problem:
     def __init__(self):
         self.board = None
         self.squares = None
+        self.obj_val = 0
         self.class_num = 1
         
     def load(self, filename):
@@ -369,6 +370,7 @@ class Problem:
         # Solve the model.
         if model.solve(log_output=True):
             obj = model.objective_value
+            self.obj_val = obj
             print("objective: {:g}".format(obj))
             for r in range(num_squares):
                 square = self.squares[r]
@@ -437,6 +439,8 @@ class Problem:
         pos_x = num_squares - 1
         xx[num_squares - 1] = -1
 
+        total_possible_count = 0
+
         while True:
             if pos_x < 0:
                 break
@@ -465,6 +469,8 @@ class Problem:
                                 #      xx[1] = 3
                                 if overlap == False and self.checkOverlap(xx, yy) == True :                                    
                                     continue
+
+                                total_possible_count += 1
 
                                 # flag covered pixel
                                 flag = [[0 for i in range(num_columns)] for j in range(num_rows)]                              
@@ -499,6 +505,7 @@ class Problem:
                                 if profit > max_profit:
                                     # set max
                                     max_profit = profit    
+                                    self.obj_val = profit
                                     for r in range(num_squares):
                                         square = self.squares[r]
                                         height = square.height
@@ -517,7 +524,8 @@ class Problem:
             else:
                 xx[pos_x] = -1
                 pos_x -= 1
-    
+
+        print('Total Brute Force Possible Solution Count = ', total_possible_count)
         
 class ProblemWindow:
     def __init__(self, parent):
@@ -1080,7 +1088,7 @@ class MainWindow(Frame):
 
             total_count += 1
 
-        table.insert("", "end", None, text=str(total_count + 1), values=("Total", "", "", "", str(total_cost), str(total_value), str(total_profit)), tags=("green",))
+        table.insert("", "end", None, text=str(total_count + 1), values=("Total", "", "", "", str(total_cost), str(total_value), str(self.problem.obj_val)), tags=("green",))
         
         
                 
