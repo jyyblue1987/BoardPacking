@@ -401,29 +401,74 @@ class Problem:
         if self.checkProblem() == False:
             return
 
-        max_number = 10
-        digit_count = 2
-        pos = digit_count - 1
-        pp = [1]*digit_count
-        pp[digit_count - 1] = 0;
+        max_profit = -10000
+        # init rectangle with first position
+        num_rows = len(self.board)
+        num_columns = len(self.board[0])
+        num_squares = len(self.squares)
+
+        xx = [1]*num_squares
+        pos_x = num_squares - 1
+        xx[num_squares - 1] = 0
+
         while True:
-            if pos < 0:
+            if pos_x < 0:
                 break
 
-            if pp[pos] < max_number:
-                pp[pos] += 1
-                if pos < digit_count - 1:
-                    pos += 1
+            if xx[pos_x] <= num_columns - self.squares[pos_x].width:
+                xx[pos_x] += 1
+                if pos_x < num_squares - 1:
+                    pos_x += 1
                 else:
-                    print(pp)                        
+                    # search row
+                    yy = [1]*num_squares
+                    pos_y = num_squares - 1
+                    yy[num_squares - 1] = 0
+
+                    while True:
+                        if pos_y < 0:
+                            break
+
+                        if yy[pos_y] <= num_rows - self.squares[pos_y].height:
+                            yy[pos_y] += 1
+                            if pos_y < num_squares - 1:
+                                pos_y += 1
+                            else:
+                                print(xx, yy)
+
+                                # calulate total profit
+                                profit = 0
+                                for r in range(num_squares):
+                                    square = self.squares[r]
+                                    height = square.height
+                                    width = square.width
+                                    cost = square.cost
+
+                                    col = xx[r] - 1
+                                    row = yy[r] - 1
+
+                                    sum1 = 0
+                                    for i in range(row, row + height):
+                                        for j in range(col, col + width):
+                                            sum1 += self.board[i][j]
+
+                                    profit += (sum1 - cost)
+
+                                if profit > max_profit:
+                                    # set max
+                                    max_profit = profit    
+                                    for r in range(num_squares):
+                                        square = self.squares[r]
+                                        height = square.height
+                                        width = square.width
+                                        cost = square.cost
+                                        self.squares[r] = Square(height, width, cost, yy[r] - 1, xx[r] - 1)     
+                        else:
+                            yy[pos_y] = 0
+                            pos_y -= 1
             else:
-                pp[pos] = 0
-                pos -= 1
-
-
-        # num_rows = len(self.board)
-        # num_columns = len(self.board[0])
-        # num_squares = len(self.squares)
+                xx[pos_x] = 0
+                pos_x -= 1
         
         # for r in range(num_squares):
         #     square = self.squares[r]
@@ -431,14 +476,7 @@ class Problem:
         #     width = square.width
         #     cost = square.cost
 
-        #     row = -100; column = -100
-
-        #     for i in range(num_rows) :
-        #         for j in range(num_columns):                    
-        #             column = j
-        #             row = i
-
-        #     self.squares[r] = Square(height, width, cost, row, column)
+        #     self.squares[r] = Square(height, width, cost, 0, -1)
     
         
 class ProblemWindow:
@@ -805,7 +843,7 @@ class MainWindow(Frame):
                                                     "Greedy Decreaing Area", 
                                                     "Greedy Decreaing Cost", 
                                                     "Greedy Decreaing Area * Cost"))
-        self.cb_method.set("MIP")
+        self.cb_method.set("Brute Force")
         self.cb_method.pack(side=LEFT)
         
         self.btnSolve = Button(frmControl, text="Solve Problem", width=22, command=self.solve_problem)
