@@ -744,6 +744,20 @@ class MainWindow(Frame):
         
         self.chkOverlap = Checkbutton(frmControl, text="Overlap", variable=self.chk_overlap)
         self.chkOverlap.pack(fill=Y, expand=False, side=LEFT)
+
+        self.lblMethod = Label(frmControl, text = "Method: ")
+        self.lblMethod.pack(side=LEFT)
+
+        self.cb_method = ttk.Combobox(frmControl, values=("MIP", 
+                                                    "Brute Force", 
+                                                    "Greedy Arbitrary", 
+                                                    "Greedy Decreaing Width", 
+                                                    "Greedy Decreaing Height", 
+                                                    "Greedy Decreaing Area", 
+                                                    "Greedy Decreaing Cost", 
+                                                    "Greedy Decreaing Area * Cost"))
+        self.cb_method.set("MIP")
+        self.cb_method.pack(side=LEFT)
         
         self.btnSolve = Button(frmControl, text="Solve Problem", width=22, command=self.solve_problem)
         self.btnSolve.pack(fill=Y, expand=False, side=RIGHT)
