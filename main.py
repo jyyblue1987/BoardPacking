@@ -397,6 +397,35 @@ class Problem:
         #     column = random.randint(0, num_columns - width)
         #     self.squares[i] = Square(height, width, cost, row, column)
 
+    def checkOverlap(self, xx, yy):
+        num_squares = len(self.squares)
+
+        for r in range(0,num_squares - 1):
+            s1 = self.squares[r]
+            h1 = s1.height
+            w1 = s1.width
+            y1 = yy[r] - 1
+            x1 = xx[r] - 1
+            b1 = y1 + h1
+            r1 = x1 + w1
+
+            for p in range(r + 1, num_squares):
+                s2 = self.squares[p]
+                h2 = s2.height
+                w2 = s2.width
+                x2 = xx[p] - 1
+                y2 = yy[p] - 1
+                b2 = y2 + h2
+                r2 = x2 + w2
+
+                # check overlay
+                if (r1 <= x2 or r2 <= x1) or (b1 <= y2 or b2 <= y1): # non overlay
+                    continue
+                else:
+                    return True
+
+        return False
+
     def solve_by_brute_force(self, overlap):
         if self.checkProblem() == False:
             return
@@ -434,7 +463,11 @@ class Problem:
                             if pos_y < num_squares - 1:
                                 pos_y += 1
                             else:
-                                print(xx, yy)
+                                # print(xx, yy)
+                                # if xx[1] == 3 and yy[1] == 6:
+                                #      xx[1] = 3
+                                if overlap == False and self.checkOverlap(xx, yy) == True :                                    
+                                    continue
 
                                 # calulate total profit
                                 profit = 0
