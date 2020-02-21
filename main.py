@@ -388,15 +388,6 @@ class Problem:
         else:
             print("Problem has no solution")        
 
-        # for i in range(num_squares):
-        #     square = self.squares[i]
-        #     height = square.height
-        #     width = square.width
-        #     cost = square.cost
-        #     row = random.randint(0, num_rows - height)
-        #     column = random.randint(0, num_columns - width)
-        #     self.squares[i] = Square(height, width, cost, row, column)
-
     def checkOverlap(self, xx, yy):
         num_squares = len(self.squares)
 
@@ -469,15 +460,8 @@ class Problem:
                                 if overlap == False and self.checkOverlap(xx, yy) == True :                                    
                                     continue
 
-                                # calulate total profit
-                                flag = []
-                                for i in range(num_rows):
-                                    row = []
-                                    for j in range(num_columns):                                       
-                                        row.append(0)
-
-                                    flag.append(row)
-
+                                # flag covered pixel
+                                flag = [[0 for i in range(num_columns)] for j in range(num_rows)]                              
                                 total_cost = 0
                                 for r in range(num_squares):
                                     square = self.squares[r]
@@ -493,6 +477,7 @@ class Problem:
                                         for j in range(col, col + width):
                                             flag[i][j] = 1                                            
 
+                                # calulate total profit
                                 sum1 = 0
                                 for i in range(num_rows):
                                     row = []
