@@ -400,6 +400,9 @@ class Problem:
             b1 = y1 + h1
             r1 = x1 + w1
 
+            if x1 < 0:
+                continue
+
             for p in range(r + 1, num_squares):
                 s2 = self.squares[p]
                 h2 = s2.height
@@ -408,6 +411,9 @@ class Problem:
                 y2 = yy[p] - 1
                 b2 = y2 + h2
                 r2 = x2 + w2
+
+                if x2 < 0:
+                    continue
 
                 # check overlay
                 if (r1 <= x2 or r2 <= x1) or (b1 <= y2 or b2 <= y1): # non overlay
@@ -421,15 +427,15 @@ class Problem:
         if self.checkProblem() == False:
             return
 
-        max_profit = -10000
+        max_profit = -10000000
         # init rectangle with first position
         num_rows = len(self.board)
         num_columns = len(self.board[0])
         num_squares = len(self.squares)
 
-        xx = [1]*num_squares
+        xx = [0]*num_squares
         pos_x = num_squares - 1
-        xx[num_squares - 1] = 0
+        xx[num_squares - 1] = -1
 
         while True:
             if pos_x < 0:
@@ -469,10 +475,13 @@ class Problem:
                                     width = square.width
                                     cost = square.cost
 
-                                    total_cost += cost
-
                                     col = xx[r] - 1
                                     row = yy[r] - 1
+                                    if col <= -1:    # dummy rectangle
+                                        continue
+
+                                    total_cost += cost
+
                                     for i in range(row, row + height):
                                         for j in range(col, col + width):
                                             flag[i][j] = 1                                            
@@ -495,12 +504,18 @@ class Problem:
                                         height = square.height
                                         width = square.width
                                         cost = square.cost
-                                        self.squares[r] = Square(height, width, cost, yy[r] - 1, xx[r] - 1)     
+
+                                        if xx[r] < 1: 
+                                            row = -100; column = -100
+                                        else:
+                                            row = yy[r] - 1; column = xx[r] - 1
+
+                                        self.squares[r] = Square(height, width, cost, row, column)     
                         else:
                             yy[pos_y] = 0
                             pos_y -= 1
             else:
-                xx[pos_x] = 0
+                xx[pos_x] = -1
                 pos_x -= 1
     
         
