@@ -330,23 +330,28 @@ class Problem:
                 row.append(val)
 
             self.board.append(row)
-     
-    
-    def solve(self, overlap):
+
+    def checkProblem(self):
         if self.board is None or self.squares is None:
             messagebox.showerror("No information", "The problem is not loaded yet.")
-            return
+            return False
             
         if len(self.board) == 0:
             messagebox.showerror("Invalid Problem", "The problem is not valid.")
-            return
+            return False
         
         if len(self.board[0]) == 0:
             messagebox.showerror("Invalid Problem", "The problem is not valid.")
-            return
+            return False
         
         if len(self.squares) == 0:
             messagebox.showerror("Invalid Problem", "The problem is not valid.")
+            return False
+
+        return True    
+    
+    def solve(self, overlap):
+        if self.checkProblem() == False:
             return
         
         num_rows = len(self.board)
@@ -391,6 +396,50 @@ class Problem:
         #     row = random.randint(0, num_rows - height)
         #     column = random.randint(0, num_columns - width)
         #     self.squares[i] = Square(height, width, cost, row, column)
+
+    def solve_by_brute_force(self, overlap):
+        if self.checkProblem() == False:
+            return
+
+        max_number = 10
+        digit_count = 2
+        pos = digit_count - 1
+        pp = [1]*digit_count
+        pp[digit_count - 1] = 0;
+        while True:
+            if pos < 0:
+                break
+
+            if pp[pos] < max_number:
+                pp[pos] += 1
+                if pos < digit_count - 1:
+                    pos += 1
+                else:
+                    print(pp)                        
+            else:
+                pp[pos] = 0
+                pos -= 1
+
+
+        # num_rows = len(self.board)
+        # num_columns = len(self.board[0])
+        # num_squares = len(self.squares)
+        
+        # for r in range(num_squares):
+        #     square = self.squares[r]
+        #     height = square.height
+        #     width = square.width
+        #     cost = square.cost
+
+        #     row = -100; column = -100
+
+        #     for i in range(num_rows) :
+        #         for j in range(num_columns):                    
+        #             column = j
+        #             row = i
+
+        #     self.squares[r] = Square(height, width, cost, row, column)
+    
         
 class ProblemWindow:
     def __init__(self, parent):
@@ -827,7 +876,14 @@ class MainWindow(Frame):
     def solve_problem(self):
         overlap = self.chk_overlap.get()
         start = time.time()
-        self.problem.solve(overlap)
+
+        method = self.cb_method.get()
+        if method == "MIP": 
+            self.problem.solve(overlap)
+
+        if method == "Brute Force" :
+            self.problem.solve_by_brute_force(overlap)
+
         end = time.time()
         self.display_problem(solution=True)
 
