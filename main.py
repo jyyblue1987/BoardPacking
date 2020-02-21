@@ -470,22 +470,37 @@ class Problem:
                                     continue
 
                                 # calulate total profit
-                                profit = 0
+                                flag = []
+                                for i in range(num_rows):
+                                    row = []
+                                    for j in range(num_columns):                                       
+                                        row.append(0)
+
+                                    flag.append(row)
+
+                                total_cost = 0
                                 for r in range(num_squares):
                                     square = self.squares[r]
                                     height = square.height
                                     width = square.width
                                     cost = square.cost
 
+                                    total_cost += cost
+
                                     col = xx[r] - 1
                                     row = yy[r] - 1
-
-                                    sum1 = 0
                                     for i in range(row, row + height):
                                         for j in range(col, col + width):
+                                            flag[i][j] = 1                                            
+
+                                sum1 = 0
+                                for i in range(num_rows):
+                                    row = []
+                                    for j in range(num_columns):                                       
+                                        if flag[i][j] > 0 :
                                             sum1 += self.board[i][j]
 
-                                    profit += (sum1 - cost)
+                                profit = sum1 - total_cost
 
                                 if profit > max_profit:
                                     # set max
@@ -502,14 +517,6 @@ class Problem:
             else:
                 xx[pos_x] = 0
                 pos_x -= 1
-        
-        # for r in range(num_squares):
-        #     square = self.squares[r]
-        #     height = square.height
-        #     width = square.width
-        #     cost = square.cost
-
-        #     self.squares[r] = Square(height, width, cost, 0, -1)
     
         
 class ProblemWindow:
