@@ -543,6 +543,20 @@ class Problem:
 
         print('Total Brute Force Possible Solution Count = ', total_possible_count)
 
+    def sort_by_width(self, val): 
+        return val.width  
+
+    def sort_by_height(self, val): 
+        return val.height      
+
+    def sort_by_area(self, val): 
+        return val.width * val.height      
+
+    def sort_by_cost(self, val): 
+        return val.cost          
+
+    def sort_by_area_cost(self, val): 
+        return val.width * val.height * val.cost              
 
     def solve_by_greedy(self, overlap, option):
         board = deepcopy(self.board)
@@ -553,8 +567,23 @@ class Problem:
         num_squares = len(squares)
 
         # sort rectangle 
-        if option == 'Width':
-            print(option)
+        if option == 'random':
+            random.shuffle(squares)  
+
+        if option == 'width':
+            squares.sort(key = self.sort_by_width, reverse = True)  
+
+        if option == 'height':
+            squares.sort(key = self.sort_by_height, reverse = True)  
+
+        if option == 'area':
+            squares.sort(key = self.sort_by_area, reverse = True)      
+
+        if option == 'cost':
+            squares.sort(key = self.sort_by_cost, reverse = True)          
+
+        if option == 'area_cost':
+            squares.sort(key = self.sort_by_area_cost, reverse = True)          
 
         max_profit = 0
         xx = [0]*num_squares
@@ -602,7 +631,7 @@ class Problem:
                     # set max
                     max_profit = profit    
                     self.obj_val = profit
-                    self.squares = self.generate_squares(self.board, self.squares, xx, yy) 
+                    self.squares = self.generate_squares(self.board, squares, xx, yy) 
 
                 # change the covered g-values to zero
                 for i in range(pos_y, pos_y + height):
@@ -1054,7 +1083,22 @@ class MainWindow(Frame):
             self.problem.solve_by_brute_force(overlap)
 
         if method == "Greedy Arbitrary" :
-            self.problem.solve_by_greedy(overlap, "arbitrary")    
+            self.problem.solve_by_greedy(overlap, "random")    
+            
+        if method == "Greedy Decreaing Width" :
+            self.problem.solve_by_greedy(overlap, "width")    
+
+        if method == "Greedy Decreaing Height" :
+            self.problem.solve_by_greedy(overlap, "height")    
+
+        if method == "Greedy Decreaing Area" :
+            self.problem.solve_by_greedy(overlap, "area")    
+
+        if method == "Greedy Decreaing Cost" :
+            self.problem.solve_by_greedy(overlap, "cost")    
+
+        if method == "Greedy Decreaing Area * Cost" :
+            self.problem.solve_by_greedy(overlap, "area_cost")    
 
         end = time.time()
         self.display_problem(solution=True)
