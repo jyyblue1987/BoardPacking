@@ -392,11 +392,11 @@ class Problem:
         else:
             print("Problem has no solution")        
 
-    def checkOverlap(self, xx, yy):
-        num_squares = len(self.squares)
+    def checkOverlap(self, xx, yy, squares):
+        num_squares = len(squares)
 
         for r in range(0,num_squares - 1):
-            s1 = self.squares[r]
+            s1 = squares[r]
             h1 = s1.height
             w1 = s1.width
             y1 = yy[r] - 1
@@ -408,7 +408,7 @@ class Problem:
                 continue
 
             for p in range(r + 1, num_squares):
-                s2 = self.squares[p]
+                s2 = squares[p]
                 h2 = s2.height
                 w2 = s2.width
                 x2 = xx[p] - 1
@@ -522,7 +522,7 @@ class Problem:
                                 # print(xx, yy)
                                 # if xx[1] == 3 and yy[1] == 6:
                                 #      xx[1] = 3
-                                if overlap == False and self.checkOverlap(xx, yy) == True :                                    
+                                if overlap == False and self.checkOverlap(xx, yy, self.squares) == True :                                    
                                     continue
 
                                 total_possible_count += 1
@@ -605,11 +605,11 @@ class Problem:
             pos_y = -1
 
             # brute forth
-            for i in range(b_h - height):
+            for i in range(b_h - height + 1):
                 yy[r] = i + 1
-                for j in range(b_w - width):
+                for j in range(b_w - width + 1):
                     xx[r] = j + 1
-                    if overlap == False and self.checkOverlap(xx, yy) == True :                                    
+                    if overlap == False and self.checkOverlap(xx, yy, squares) == True :                                    
                         continue
 
                     iterate_count += 1
@@ -638,13 +638,83 @@ class Problem:
                     for j in range(pos_x, pos_x + width):
                         board[i][j] = 0   
 
-        return sol_squares, obj_val                
+        return sol_squares, obj_val        
 
     def solve_by_greedy(self, overlap, option):
         board = deepcopy(self.board)
         squares = deepcopy(self.squares)
 
-        self.squares, self.obj_val = self.solve_by_greedy_proc(board, squares, overlap, option)
+        sol_squares = squares
+
+        sol_squares, obj_val = self.solve_by_greedy_proc(board, squares, overlap, option)
+
+        # num_squares = len(squares)
+        # b_h = len(board)
+        # b_w = len(board[0])
+        # for r in range(self.squares):
+        #     # pack a rectangle
+            
+        #     sub_squares = []            
+        #     for q in range(self.squares):
+        #         if r == q:
+        #             continue
+
+        #         square = squares[q]
+        #         height = square.height
+        #         width = square.width
+        #         cost = square.cost
+  
+        #         square1 = Square(height, width, cost, -100, -100)
+        #         sub_squares.append(square1)
+
+        #     sub_squares, profit = self.solve_by_greedy_proc(board, sub_squares, overlap, option)
+           
+        #     xx = [0]*num_squares
+        #     yy = [0]*num_squares
+        #     for q in range(num_squares - 1):
+        #         square = sub_squares[q]
+        #         xx[q] = square.column + 1
+        #         yy[q] = square.row + 1
+
+        #     # brute forth
+
+        #     # append current rectangle to last 
+        #     square = squares[r]
+        #     height = square.height
+        #     width = square.width
+        #     cost = square.cost
+
+        #     square1 = Square(height, width, cost, -100, -100)
+        #     sub_squares.append(square1)
+
+        #     pos_x = -1
+        #     pos_y = -1
+        #     q = num_squares - 1
+        #     for i in range(b_h - height + 1):
+        #         yy[q] = i + 1
+        #         for j in range(b_w - width + 1):
+        #             xx[q] = j + 1
+        #             if overlap == False and self.checkOverlap(xx, yy, sub_squares) == True :                                    
+        #                 continue
+
+        #             profit = self.calc_profit(board, sub_squares, xx, yy)
+
+        #             if profit > obj_val:
+        #                 # set max
+        #                 obj_val = profit   
+        #                 pos_x = j
+        #                 pos_y = i
+
+        #     if pos_x >= 0 and pos_y >= 0:
+        #         xx[q] = pos_x + 1
+        #         yy[q] = pos_y + 1
+        #         sol_squares = self.generate_squares(board, sub_squares, xx, yy)
+        #         obj_val = profit
+
+        self.squares = sol_squares
+        self.obj_val = obj_val
+
+
         
              
 class ProblemWindow:
