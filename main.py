@@ -463,6 +463,23 @@ class Problem:
 
         return profit
 
+    def generate_squares(self, board, squares, xx, yy):    
+        num_squares = len(squares)
+        for r in range(num_squares):
+            square = squares[r]
+            height = square.height
+            width = square.width
+            cost = square.cost
+
+            if xx[r] < 1: 
+                row = -100; column = -100
+            else:
+                row = yy[r] - 1; column = xx[r] - 1
+
+            squares[r] = Square(height, width, cost, row, column)     
+
+        return squares    
+
     def solve_by_brute_force(self, overlap):
         if self.checkProblem() == False:
             return
@@ -516,18 +533,7 @@ class Problem:
                                     # set max
                                     max_profit = profit    
                                     self.obj_val = profit
-                                    for r in range(num_squares):
-                                        square = self.squares[r]
-                                        height = square.height
-                                        width = square.width
-                                        cost = square.cost
-
-                                        if xx[r] < 1: 
-                                            row = -100; column = -100
-                                        else:
-                                            row = yy[r] - 1; column = xx[r] - 1
-
-                                        self.squares[r] = Square(height, width, cost, row, column)     
+                                    self.squares = self.generate_squares(self.board, self.squares, xx, yy)                                    
                         else:
                             yy[pos_y] = 0
                             pos_y -= 1
