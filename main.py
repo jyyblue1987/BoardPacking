@@ -558,13 +558,13 @@ class Problem:
     def sort_by_area_cost(self, val): 
         return val.width * val.height * val.cost              
 
-    def solve_by_greedy(self, overlap, option):
-        board = deepcopy(self.board)
-        squares = deepcopy(self.squares)
-
+    def solve_by_greedy_proc(self, board, squares, overlap, option):
         b_h = len(board)
         b_w = len(board[0])
         num_squares = len(squares)
+
+        sol_squares = squares
+        obj_val = -1000000
 
         # sort rectangle 
         if option == 'random':
@@ -630,14 +630,22 @@ class Problem:
                 if profit > max_profit:
                     # set max
                     max_profit = profit    
-                    self.obj_val = profit
-                    self.squares = self.generate_squares(self.board, squares, xx, yy) 
+                    obj_val = profit
+                    sol_squares = self.generate_squares(board, squares, xx, yy) 
 
                 # change the covered g-values to zero
                 for i in range(pos_y, pos_y + height):
                     for j in range(pos_x, pos_x + width):
                         board[i][j] = 0   
 
+        return sol_squares, obj_val                
+
+    def solve_by_greedy(self, overlap, option):
+        board = deepcopy(self.board)
+        squares = deepcopy(self.squares)
+
+        self.squares, self.obj_val = self.solve_by_greedy_proc(board, squares, overlap, option)
+        
              
 class ProblemWindow:
     def __init__(self, parent):
