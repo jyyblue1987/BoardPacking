@@ -640,13 +640,8 @@ class Problem:
 
         return sol_squares, obj_val        
 
-    def solve_by_greedy(self, overlap, option):
-        board = deepcopy(self.board)
-        squares = deepcopy(self.squares)
-
+    def solve_by_local_search(self, board, squares, overlap, option, obj_val):
         sol_squares = squares
-
-        sol_squares, obj_val = self.solve_by_greedy_proc(board, squares, overlap, option)
 
         # local search
         num_squares = len(squares)
@@ -714,6 +709,18 @@ class Problem:
                 yy[q] = pos_y + 1
                 sol_squares = self.generate_squares(board, sub_squares, xx, yy)
                 obj_val = profit
+
+        return sol_squares, obj_val        
+
+    def solve_by_greedy(self, overlap, option, local_search):
+        board = deepcopy(self.board)
+        squares = deepcopy(self.squares)
+
+        sol_squares = squares
+        sol_squares, obj_val = self.solve_by_greedy_proc(board, squares, overlap, option)
+
+        if local_search:
+            sol_squares, obj_val = self.solve_by_local_search(board, squares, overlap, option, obj_val)
 
         self.squares = sol_squares
         self.obj_val = obj_val
@@ -1074,9 +1081,6 @@ class MainWindow(Frame):
         self.chkOverlap = Checkbutton(frmControl, text="Overlap", variable=self.chk_overlap)
         self.chkOverlap.pack(fill=Y, expand=False, side=LEFT)
 
-        self.lblMethod = Label(frmControl, text = "Method: ")
-        self.lblMethod.pack(side=LEFT)
-
         self.cb_method = ttk.Combobox(frmControl, values=("MIP", 
                                                     "Brute Force", 
                                                     "Greedy Arbitrary", 
@@ -1087,6 +1091,12 @@ class MainWindow(Frame):
                                                     "Greedy Decreaing Area * Cost"))
         self.cb_method.set("Greedy Arbitrary")
         self.cb_method.pack(side=LEFT)
+
+        self.chk_local_search = IntVar()
+        
+        self.chkLocalSearch = Checkbutton(frmControl, text="Local Search", variable=self.chk_local_search)
+        self.chkLocalSearch.pack(fill=Y, expand=False, side=LEFT)
+
         
         self.btnSolve = Button(frmControl, text="Solve Problem", width=22, command=self.solve_problem)
         self.btnSolve.pack(fill=Y, expand=False, side=RIGHT)
@@ -1155,6 +1165,7 @@ class MainWindow(Frame):
     
     def solve_problem(self):
         overlap = self.chk_overlap.get()
+        local_search = self.chk_local_search.get()
         start = time.time()
 
         method = self.cb_method.get()
@@ -1165,22 +1176,22 @@ class MainWindow(Frame):
             self.problem.solve_by_brute_force(overlap)
 
         if method == "Greedy Arbitrary" :
-            self.problem.solve_by_greedy(overlap, "random")    
+            self.problem.solve_by_greedy(overlap, "random", local_search)    
             
         if method == "Greedy Decreaing Width" :
-            self.problem.solve_by_greedy(overlap, "width")    
+            self.problem.solve_by_greedy(overlap, "width", local_search)    
 
         if method == "Greedy Decreaing Height" :
-            self.problem.solve_by_greedy(overlap, "height")    
+            self.problem.solve_by_greedy(overlap, "height", local_search)    
 
         if method == "Greedy Decreaing Area" :
-            self.problem.solve_by_greedy(overlap, "area")    
+            self.problem.solve_by_greedy(overlap, "area", local_search)    
 
         if method == "Greedy Decreaing Cost" :
-            self.problem.solve_by_greedy(overlap, "cost")    
+            self.problem.solve_by_greedy(overlap, "cost", local_search)    
 
         if method == "Greedy Decreaing Area * Cost" :
-            self.problem.solve_by_greedy(overlap, "area_cost")    
+            self.problem.solve_by_greedy(overlap, "area_cost", local_search)    
 
         end = time.time()
         self.display_problem(solution=True)
