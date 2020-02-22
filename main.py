@@ -707,8 +707,7 @@ class Problem:
             if pos_x >= 0 and pos_y >= 0:
                 xx[q] = pos_x + 1
                 yy[q] = pos_y + 1
-                sol_squares = self.generate_squares(board, sub_squares, xx, yy)
-                obj_val = profit
+                sol_squares = self.generate_squares(board, sub_squares, xx, yy)                
 
         return sol_squares, obj_val        
 
