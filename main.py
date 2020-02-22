@@ -8,6 +8,8 @@ import tkinter as tk
 import time
 import tkinter.ttk as ttk
 
+from copy import copy, deepcopy
+
 import os
 import random
 import colorsys
@@ -425,6 +427,42 @@ class Problem:
 
         return False
 
+    def calc_profit(self, board, squares, xx, yy):
+        num_rows = len(board)
+        num_columns = len(board[0])
+        num_squares = len(squares)
+
+        flag = [[0 for i in range(num_columns)] for j in range(num_rows)]                              
+        total_cost = 0
+        for r in range(num_squares):
+            square = squares[r]
+            height = square.height
+            width = square.width
+            cost = square.cost
+
+            col = xx[r] - 1
+            row = yy[r] - 1
+            if col <= -1:    # dummy rectangle
+                continue
+
+            total_cost += cost
+
+            for i in range(row, row + height):
+                for j in range(col, col + width):
+                    flag[i][j] = 1                                            
+
+        # calulate total profit
+        sum1 = 0
+        for i in range(num_rows):
+            row = []
+            for j in range(num_columns):                                       
+                if flag[i][j] > 0 :
+                    sum1 += board[i][j]
+
+        profit = sum1 - total_cost
+
+        return profit
+
     def solve_by_brute_force(self, overlap):
         if self.checkProblem() == False:
             return
@@ -472,35 +510,7 @@ class Problem:
 
                                 total_possible_count += 1
 
-                                # flag covered pixel
-                                flag = [[0 for i in range(num_columns)] for j in range(num_rows)]                              
-                                total_cost = 0
-                                for r in range(num_squares):
-                                    square = self.squares[r]
-                                    height = square.height
-                                    width = square.width
-                                    cost = square.cost
-
-                                    col = xx[r] - 1
-                                    row = yy[r] - 1
-                                    if col <= -1:    # dummy rectangle
-                                        continue
-
-                                    total_cost += cost
-
-                                    for i in range(row, row + height):
-                                        for j in range(col, col + width):
-                                            flag[i][j] = 1                                            
-
-                                # calulate total profit
-                                sum1 = 0
-                                for i in range(num_rows):
-                                    row = []
-                                    for j in range(num_columns):                                       
-                                        if flag[i][j] > 0 :
-                                            sum1 += self.board[i][j]
-
-                                profit = sum1 - total_cost
+                                profit = self.calc_profit(self.board, self.squares, xx, yy)
 
                                 if profit > max_profit:
                                     # set max
@@ -526,6 +536,49 @@ class Problem:
                 pos_x -= 1
 
         print('Total Brute Force Possible Solution Count = ', total_possible_count)
+
+
+    def solve_by_greedy(self, overlap, option):
+        board = deepcopy(self.board)
+        squares = deepcopy(self.squares)
+
+        b_h = len(board)
+        b_w = len(board[0])
+        num_squares = len(squares)
+
+        # sort rectangle 
+        if option == 'Width':
+            print(option)
+
+        # init rectangle
+        for r in range(num_squares):
+            square = squares[r]
+            height = square.height
+            width = square.width
+            cost = square.cost
+
+            squares[r] = Square(height, width, cost, -100, -100)     
+
+        max_profit = 0
+        xx = [0]*num_squares
+        yy = [0]*num_squares
+        
+        for r in range(num_squares):
+            # select a rectangle
+            square = squares[r]
+            height = square.height
+            width = square.width
+            cost = square.cost
+
+            # brute forth
+            for i in range(b_h - height):
+                yy[r] = i + 1
+                for j in range(b_w - width):
+                    xx[r] = j + 1
+                    if overlap == False and self.checkOverlap(xx, yy) == True :                                    
+                        continue
+
+        
         
 class ProblemWindow:
     def __init__(self, parent):
@@ -891,7 +944,7 @@ class MainWindow(Frame):
                                                     "Greedy Decreaing Area", 
                                                     "Greedy Decreaing Cost", 
                                                     "Greedy Decreaing Area * Cost"))
-        self.cb_method.set("Brute Force")
+        self.cb_method.set("Greedy Arbitrary")
         self.cb_method.pack(side=LEFT)
         
         self.btnSolve = Button(frmControl, text="Solve Problem", width=22, command=self.solve_problem)
@@ -969,6 +1022,9 @@ class MainWindow(Frame):
 
         if method == "Brute Force" :
             self.problem.solve_by_brute_force(overlap)
+
+        if method == "Greedy Arbitrary" :
+            self.problem.solve_by_greedy(overlap, "arbitrary")    
 
         end = time.time()
         self.display_problem(solution=True)
