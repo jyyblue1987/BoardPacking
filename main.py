@@ -478,7 +478,7 @@ class Problem:
 
             squares[r] = Square(height, width, cost, row, column)     
 
-        return squares    
+        return squares 
 
     def solve_by_brute_force(self, overlap):
         if self.checkProblem() == False:
@@ -556,25 +556,24 @@ class Problem:
         if option == 'Width':
             print(option)
 
-        # init rectangle
-        for r in range(num_squares):
-            square = squares[r]
-            height = square.height
-            width = square.width
-            cost = square.cost
-
-            squares[r] = Square(height, width, cost, -100, -100)     
-
         max_profit = 0
         xx = [0]*num_squares
         yy = [0]*num_squares
+
+        # init rectangle
+        squares = self.generate_squares(board, squares, xx, yy)
         
+        iterate_count = 0
         for r in range(num_squares):
             # select a rectangle
             square = squares[r]
             height = square.height
             width = square.width
             cost = square.cost
+
+            sub_max_profit = -1000000
+            pos_x = -1
+            pos_y = -1
 
             # brute forth
             for i in range(b_h - height):
@@ -584,8 +583,33 @@ class Problem:
                     if overlap == False and self.checkOverlap(xx, yy) == True :                                    
                         continue
 
-        
-        
+                    iterate_count += 1
+
+                    profit = self.calc_profit(board, squares, xx, yy)
+
+                    if profit > sub_max_profit:
+                        # set max
+                        sub_max_profit = profit   
+                        pos_x = j
+                        pos_y = i
+
+            if pos_x >= 0 and pos_y >= 0:
+                xx[r] = pos_x + 1
+                yy[r] = pos_y + 1
+
+                profit = self.calc_profit(self.board, squares, xx, yy)
+                if profit > max_profit:
+                    # set max
+                    max_profit = profit    
+                    self.obj_val = profit
+                    self.squares = self.generate_squares(self.board, self.squares, xx, yy) 
+
+                # change the covered g-values to zero
+                for i in range(pos_y, pos_y + height):
+                    for j in range(pos_x, pos_x + width):
+                        board[i][j] = 0   
+
+             
 class ProblemWindow:
     def __init__(self, parent):
         self.top = tk.Toplevel(parent)
