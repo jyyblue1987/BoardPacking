@@ -648,68 +648,72 @@ class Problem:
 
         sol_squares, obj_val = self.solve_by_greedy_proc(board, squares, overlap, option)
 
-        # num_squares = len(squares)
-        # b_h = len(board)
-        # b_w = len(board[0])
-        # for r in range(self.squares):
-        #     # pack a rectangle
+        # local search
+        num_squares = len(squares)
+        b_h = len(board)
+        b_w = len(board[0])
+        for r in range(num_squares):
+            # pack a rectangle
             
-        #     sub_squares = []            
-        #     for q in range(self.squares):
-        #         if r == q:
-        #             continue
+            sub_squares = []            
+            for q in range(num_squares):
+                if r == q:
+                    continue
 
-        #         square = squares[q]
-        #         height = square.height
-        #         width = square.width
-        #         cost = square.cost
+                square = squares[q]
+                height = square.height
+                width = square.width
+                cost = square.cost
   
-        #         square1 = Square(height, width, cost, -100, -100)
-        #         sub_squares.append(square1)
+                square1 = Square(height, width, cost, -100, -100)
+                sub_squares.append(square1)
 
-        #     sub_squares, profit = self.solve_by_greedy_proc(board, sub_squares, overlap, option)
+            board = deepcopy(self.board)
+            sub_squares, profit = self.solve_by_greedy_proc(board, sub_squares, overlap, option)
            
-        #     xx = [0]*num_squares
-        #     yy = [0]*num_squares
-        #     for q in range(num_squares - 1):
-        #         square = sub_squares[q]
-        #         xx[q] = square.column + 1
-        #         yy[q] = square.row + 1
+            xx = [0]*num_squares
+            yy = [0]*num_squares
+            for q in range(num_squares - 1):
+                square = sub_squares[q]
+                xx[q] = square.column + 1
+                yy[q] = square.row + 1
 
-        #     # brute forth
+            # brute forth
 
-        #     # append current rectangle to last 
-        #     square = squares[r]
-        #     height = square.height
-        #     width = square.width
-        #     cost = square.cost
+            # append current rectangle to last 
+            square = squares[r]
+            height = square.height
+            width = square.width
+            cost = square.cost
 
-        #     square1 = Square(height, width, cost, -100, -100)
-        #     sub_squares.append(square1)
+            square1 = Square(height, width, cost, -100, -100)
+            sub_squares.append(square1)
 
-        #     pos_x = -1
-        #     pos_y = -1
-        #     q = num_squares - 1
-        #     for i in range(b_h - height + 1):
-        #         yy[q] = i + 1
-        #         for j in range(b_w - width + 1):
-        #             xx[q] = j + 1
-        #             if overlap == False and self.checkOverlap(xx, yy, sub_squares) == True :                                    
-        #                 continue
+            pos_x = -1
+            pos_y = -1
+            q = num_squares - 1
 
-        #             profit = self.calc_profit(board, sub_squares, xx, yy)
+            board = deepcopy(self.board)
+            for i in range(b_h - height + 1):
+                yy[q] = i + 1
+                for j in range(b_w - width + 1):
+                    xx[q] = j + 1
+                    if overlap == False and self.checkOverlap(xx, yy, sub_squares) == True :                                    
+                        continue
 
-        #             if profit > obj_val:
-        #                 # set max
-        #                 obj_val = profit   
-        #                 pos_x = j
-        #                 pos_y = i
+                    profit = self.calc_profit(board, sub_squares, xx, yy)
 
-        #     if pos_x >= 0 and pos_y >= 0:
-        #         xx[q] = pos_x + 1
-        #         yy[q] = pos_y + 1
-        #         sol_squares = self.generate_squares(board, sub_squares, xx, yy)
-        #         obj_val = profit
+                    if profit > obj_val:
+                        # set max
+                        obj_val = profit   
+                        pos_x = j
+                        pos_y = i
+
+            if pos_x >= 0 and pos_y >= 0:
+                xx[q] = pos_x + 1
+                yy[q] = pos_y + 1
+                sol_squares = self.generate_squares(board, sub_squares, xx, yy)
+                obj_val = profit
 
         self.squares = sol_squares
         self.obj_val = obj_val
