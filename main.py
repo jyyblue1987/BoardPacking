@@ -1299,7 +1299,10 @@ class MainWindow(Frame):
                 total_profit += profit
             
             if solution:
-                tags = (str(key + 1),)
+                if square.row >= 0:
+                    tags = (str(key + 1),)
+                else:    
+                    tags = ""
             else:                
                 if key % 2 == 0:
                     tags = ("white",)
