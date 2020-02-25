@@ -209,17 +209,21 @@ class Problem:
                 messagebox.showerror("Invalid File Format", "The input file is invalid or corrupted.")
                 return
 
-            row = -1
-            col = -1
+            row = -99
+            col = -99
             if len(elements) >= 5:
                 try:
                     row = int(elements[3])
+                    if row < 0:
+                        row = -99
                 except:
                     messagebox.showerror("Invalid File Format", "The input file is invalid or corrupted.")
                     return    
 
                 try:
                     col = int(elements[4])
+                    if col < 0:
+                        col = -99
                 except:
                     messagebox.showerror("Invalid File Format", "The input file is invalid or corrupted.")
                     return            
