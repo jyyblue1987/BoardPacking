@@ -187,7 +187,7 @@ class Problem:
             line = lines[3 + num_rows + i]
             elements = line.split(",")
             
-            if len(elements) != 3:
+            if len(elements) < 3:
                 messagebox.showerror("Invalid File Format", "The input file is invalid or corrupted.")
                 return
             
@@ -208,10 +208,33 @@ class Problem:
             except:
                 messagebox.showerror("Invalid File Format", "The input file is invalid or corrupted.")
                 return
+
+            row = -1
+            col = -1
+            if len(elements) >= 5:
+                try:
+                    row = int(elements[3])
+                except:
+                    messagebox.showerror("Invalid File Format", "The input file is invalid or corrupted.")
+                    return    
+
+                try:
+                    col = int(elements[4])
+                except:
+                    messagebox.showerror("Invalid File Format", "The input file is invalid or corrupted.")
+                    return            
             
-            square = Square(height, width, cost, -1, -1)
+            square = Square(height, width, cost, row, col)
             self.squares.append(square)
             
+        self.obj_val = -1000000
+        if len(lines) > 3 + num_rows + num_squares:
+            try:
+                self.obj_val = int(lines[3 + num_rows + num_squares])                
+            except:
+                messagebox.showerror("Invalid File Format", "The input file is invalid or corrupted.")
+                return
+                
         i = 1
 
         self.class_num = 1
@@ -249,7 +272,10 @@ class Problem:
             fp.write(str(num_squares) + "\n")
             
             for row in self.squares:
-                fp.write(str(row.height) + "," + str(row.width) + "," + str(row.cost) + "\n")
+                fp.write(str(row.height) + "," + str(row.width) + "," + str(row.cost) + "," + str(row.row) + "," + str(row.column) + "\n")
+
+            if self.obj_val > -1000000:
+                fp.write(str(self.obj_val) + "\n")     
     
     def generate(self, class_num, num_rows, num_cols, num_squares, size_squares, chk_random):
         self.board = []
@@ -484,7 +510,7 @@ class Problem:
         if self.checkProblem() == False:
             return
 
-        max_profit = -10000000
+        max_profit = -1000000
         # init rectangle with first position
         num_rows = len(self.board)
         num_columns = len(self.board[0])
@@ -1131,7 +1157,11 @@ class MainWindow(Frame):
             return
         self.problem.load(filename)
         self.cnsBoard.delete("all")
-        self.display_problem()        
+
+        if self.problem.obj_val > -1000000:
+            self.display_problem(solution=True)
+        else:            
+            self.display_problem()
         
     def export_problem(self):
         filename = filedialog.asksaveasfilename(title = "Select file",filetypes = (("text files","*.txt"),("all files","*.*")))
