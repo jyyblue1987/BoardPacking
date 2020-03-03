@@ -203,6 +203,141 @@ class Individual(object):
             if gs != gt: fitness+= 1
         return fitness 
 
+class SquareIndividual(object): 
+    ''' 
+    Class representing individual in population 
+    '''
+    def __init__(self, chromosome, board, squares):         
+        self.board = board  
+        self.squares = squares          
+        self.num_rows = len(self.board)
+        self.num_cols = len(self.board[0])
+
+        gnome_len = len(self.squares) 
+        if len(chromosome) < 1 :
+            chromosome = []
+
+            for i in range(gnome_len):            
+                chromosome.append(self.mutated_genes(i, 1)) # row
+
+            for i in range(gnome_len):            
+                chromosome.append(self.mutated_genes(i, 2)) # col    
+
+        self.chromosome = chromosome
+
+        self.fitness = self.cal_fitness() 
+    
+    def mutated_genes(self, num, flag): 
+        ''' 
+        create random genes for mutation 
+        '''
+        square = self.squares[num]
+        if flag == 1: # row                         
+            gene = random.randint(0, self.num_rows - square.height)
+        else:    
+            gene = random.randint(0, self.num_cols - square.width)
+
+        return gene 
+  
+    def create_gnome(self): 
+        ''' 
+        create chromosome or string of genes 
+        '''
+        gnome_len = len(self.squares) 
+        chromosome = []
+
+        for i in range(gnome_len):            
+            chromosome.append(self.mutated_genes(i, 1)) # row
+
+        for i in range(gnome_len):            
+            chromosome.append(self.mutated_genes(i, 2)) # col    
+
+        return chromosome
+  
+    def mate(self, par2): 
+        ''' 
+        Perform mating and produce new offspring 
+        '''
+  
+        # chromosome for offspring 
+        num_squares = len(self.squares)
+
+        child_chromosome = [] 
+        num = 0
+        for gp1, gp2 in zip(self.chromosome, par2.chromosome):     
+  
+            # random probability   
+            prob = random.random() 
+  
+            # if prob is less than 0.45, insert gene 
+            # from parent 1  
+            if prob < 0.45: 
+                child_chromosome.append(gp1) 
+  
+            # if prob is between 0.45 and 0.90, insert 
+            # gene from parent 2 
+            elif prob < 0.90: 
+                child_chromosome.append(gp2) 
+  
+            # otherwise insert random gene(mutate),  
+            # for maintaining diversity 
+            else: 
+                if num >= num_squares:
+                    child_chromosome.append(self.mutated_genes(num - num_squares, 2))
+                else:    
+                    child_chromosome.append(self.mutated_genes(num - num_squares, 1))
+
+            num += 1    
+  
+        # create new Individual(offspring) using  
+        # generated chromosome for offspring 
+        return SquareIndividual(child_chromosome, self.board, self.squares) 
+        
+    def cal_fitness(self): 
+        ''' 
+        Calculate fittness score, it is the number of 
+        characters in string which differ from target 
+        string. 
+        '''
+        fitness = 0
+      
+        num_rows = len(self.board)
+        num_columns = len(self.board[0])
+        num_squares = len(self.squares)
+
+        flag = [[0 for i in range(num_columns)] for j in range(num_rows)]                              
+        total_cost = 0
+        for r in range(num_squares):
+            square = self.squares[r]
+            height = square.height
+            width = square.width
+            cost = square.cost
+
+            col = self.chromosome[r + num_squares]
+            row = self.chromosome[r]
+
+            if col <= -1:    # dummy rectangle
+                continue
+
+            total_cost += cost
+
+            for i in range(row, row + height):
+                for j in range(col, col + width):
+                    flag[i][j] = 1                                            
+
+        # calulate total profit
+        sum1 = 0
+        for i in range(num_rows):
+            row = []
+            for j in range(num_columns):                                       
+                if flag[i][j] > 0 :
+                    sum1 += self.board[i][j]
+
+        profit = sum1 - total_cost
+        fitness = -profit
+
+        return fitness 
+
 class Problem:
     def __init__(self):
         self.board = None
@@ -833,7 +968,7 @@ class Problem:
         self.squares = sol_squares
         self.obj_val = obj_val
 
-    def solve_by_ga(self, overlap):
+    def solve_by_ga1(self, overlap):
         board = deepcopy(self.board)
         squares = deepcopy(self.squares)
 
@@ -888,6 +1023,61 @@ class Problem:
     
         
         print("Generation: " + str(generation) + "\tString: " + "".join(population[0].chromosome) + "\tFitness: " + str(population[0].fitness))        
+
+    def solve_by_ga(self, overlap):
+        board = deepcopy(self.board)
+        squares = deepcopy(self.squares)
+
+        global POPULATION_SIZE 
+  
+        #current generation 
+        generation = 1
+    
+        found = False
+        population = [] 
+    
+        # create initial population 
+        for _ in range(POPULATION_SIZE): 
+            population.append(SquareIndividual([], board, squares)) 
+    
+        while not found: 
+    
+            # sort the population in increasing order of fitness score 
+            population = sorted(population, key = lambda x:x.fitness) 
+    
+            # if the individual having lowest fitness score ie.  
+            # 0 then we know that we have reached to the target 
+            # and break the loop 
+            if population[0].fitness <= 0: 
+                found = True
+                break
+    
+            # Otherwise generate new offsprings for new generation 
+            new_generation = [] 
+    
+            # Perform Elitism, that mean 10% of fittest population 
+            # goes to the next generation 
+            s = int((10*POPULATION_SIZE)/100) 
+            new_generation.extend(population[:s]) 
+    
+            # From 50% of fittest population, Individuals  
+            # will mate to produce offspring 
+            s = int((90*POPULATION_SIZE)/100) 
+
+            for _ in range(s): 
+                parent1 = random.choice(population[:50]) 
+                parent2 = random.choice(population[:50]) 
+                child = parent1.mate(parent2) 
+                new_generation.append(child) 
+    
+            population = new_generation 
+    
+            print("Generation: " + str(generation) + "\tString: " + ",".join(map(str, population[0].chromosome)) + "\tFitness: " + str(population[0].fitness)) 
+    
+            generation += 1
+    
+        
+        print("Generation: " + str(generation) + "\tString: " + "".join(map(str, population[0].chromosome)) + "\tFitness: " + str(population[0].fitness))            
         
              
 class ProblemWindow:
