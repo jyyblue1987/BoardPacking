@@ -132,7 +132,7 @@ GENES = '''abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP
 QRSTUVWXYZ 1234567890, .-;:_!"#%&/()=?@${[]}'''
 
 # Target string to be generated 
-TARGET = "I love GeeksforGeeks"
+TARGET = "Board Packing Problem - GA"
 
 class Individual(object): 
     ''' 
@@ -873,6 +873,7 @@ class Problem:
             # From 50% of fittest population, Individuals  
             # will mate to produce offspring 
             s = int((90*POPULATION_SIZE)/100) 
+
             for _ in range(s): 
                 parent1 = random.choice(population[:50]) 
                 parent2 = random.choice(population[:50]) 
