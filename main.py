@@ -1024,7 +1024,7 @@ class Problem:
         
         print("Generation: " + str(generation) + "\tString: " + "".join(population[0].chromosome) + "\tFitness: " + str(population[0].fitness))        
 
-    def solve_by_ga(self, overlap, popu_size, stop_size, muta_prob):
+    def solve_by_ga(self, overlap, popu_size, stop_size, muta_prob, select_prob):
         board = deepcopy(self.board)
         squares = deepcopy(self.squares)
 
@@ -1078,12 +1078,12 @@ class Problem:
     
             # Perform Elitism, that mean 10% of fittest population 
             # goes to the next generation 
-            s = int((10*POPULATION_SIZE)/100) 
+            s = int(POPULATION_SIZE * select_prob) 
             new_generation.extend(population[:s]) 
     
             # From 50% of fittest population, Individuals  
             # will mate to produce offspring 
-            s = int((90*POPULATION_SIZE)/100) 
+            s = POPULATION_SIZE - s
 
             for _ in range(s): 
                 parent1 = random.choice(population[:50]) 
@@ -1549,6 +1549,14 @@ class MainWindow(Frame):
         self.txtMutaProb = Entry(frmControl1, textvariable=muta_prob, width=10)
         self.txtMutaProb.pack(fill=Y, expand=False, side=LEFT)
 
+        lblSelectProb = Label(frmControl1, text = "Selection Percent: ")
+        lblSelectProb.pack(fill=Y, expand=False, side=LEFT)
+        
+        select_prob = tk.StringVar()
+        select_prob.set(0.1)
+        self.txtSelectProb = Entry(frmControl1, textvariable=select_prob, width=10)
+        self.txtSelectProb.pack(fill=Y, expand=False, side=LEFT)
+
         
     def import_problem(self):
         filename = filedialog.askopenfilename(title = "Select file",filetypes = (("text files","*.txt"),("all files","*.*")))
@@ -1625,7 +1633,8 @@ class MainWindow(Frame):
             popu_size = int(self.txtPopulationSize.get())
             stop_size = int(self.txtStopSize.get())
             muta_prob = float(self.txtMutaProb.get())
-            self.problem.solve_by_ga(overlap, popu_size, stop_size, muta_prob)        
+            select_prob = float(self.txtSelectProb.get())
+            self.problem.solve_by_ga(overlap, popu_size, stop_size, muta_prob, select_prob)        
 
         end = time.time()
         self.display_problem(solution=True)
