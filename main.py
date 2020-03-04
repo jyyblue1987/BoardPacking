@@ -157,11 +157,12 @@ class Individual(object):
         gnome_len = len(TARGET) 
         return [self.mutated_genes() for _ in range(gnome_len)] 
   
-    def mate(self, par2): 
+    def mate(self, par2, muta_prob): 
         ''' 
         Perform mating and produce new offspring 
         '''
-  
+        
+        crit_prob = (1 - muta_prob) / 2
         # chromosome for offspring 
         child_chromosome = [] 
         for gp1, gp2 in zip(self.chromosome, par2.chromosome):     
@@ -171,12 +172,12 @@ class Individual(object):
   
             # if prob is less than 0.45, insert gene 
             # from parent 1  
-            if prob < 0.45: 
+            if prob < crit_prob: 
                 child_chromosome.append(gp1) 
   
             # if prob is between 0.45 and 0.90, insert 
             # gene from parent 2 
-            elif prob < 0.90: 
+            elif prob < crit_prob * 2: 
                 child_chromosome.append(gp2) 
   
             # otherwise insert random gene(mutate),  
@@ -251,11 +252,12 @@ class SquareIndividual(object):
 
         return chromosome
   
-    def mate(self, par2): 
+    def mate(self, par2, muta_prob): 
         ''' 
         Perform mating and produce new offspring 
         '''
-  
+        crit_prob = (1 - muta_prob) / 2
+
         # chromosome for offspring 
         num_squares = len(self.squares)
 
@@ -268,12 +270,12 @@ class SquareIndividual(object):
   
             # if prob is less than 0.45, insert gene 
             # from parent 1  
-            if prob < 0.45: 
+            if prob < crit_prob: 
                 child_chromosome.append(gp1) 
   
             # if prob is between 0.45 and 0.90, insert 
             # gene from parent 2 
-            elif prob < 0.90: 
+            elif prob < crit_prob * 2: 
                 child_chromosome.append(gp2) 
   
             # otherwise insert random gene(mutate),  
@@ -1022,12 +1024,12 @@ class Problem:
         
         print("Generation: " + str(generation) + "\tString: " + "".join(population[0].chromosome) + "\tFitness: " + str(population[0].fitness))        
 
-    def solve_by_ga(self, overlap):
+    def solve_by_ga(self, overlap, popu_size, stop_size, muta_prob):
         board = deepcopy(self.board)
         squares = deepcopy(self.squares)
 
         # Number of individuals in each generation 
-        POPULATION_SIZE = 100
+        POPULATION_SIZE = popu_size
 
         #current generation 
         generation = 1
@@ -1053,7 +1055,7 @@ class Problem:
                 min_generation_num = generation 
                 chromosome = population[0].chromosome
 
-            if generation - min_generation_num > 200: # not updated                
+            if generation - min_generation_num > stop_size: # not updated                
                 found = True 
                 break
     
@@ -1079,7 +1081,7 @@ class Problem:
             for _ in range(s): 
                 parent1 = random.choice(population[:50]) 
                 parent2 = random.choice(population[:50]) 
-                child = parent1.mate(parent2) 
+                child = parent1.mate(parent2, muta_prob) 
                 new_generation.append(child) 
     
             population = new_generation 
@@ -1509,6 +1511,37 @@ class MainWindow(Frame):
         self.btnBoard = Button(frmControl, text="Refresh Board", width=22, command=self.refresh_board)
         self.btnBoard.pack(fill=Y, expand=False, side=RIGHT)
         
+        frmBoardSpace3 = Frame(self, height=2)
+        frmBoardSpace3.pack(fill=BOTH)
+
+        frmControl1 = Frame(self)
+        frmControl1.pack(fill=BOTH, expand=False)
+
+          
+        lblPopulationSize = Label(frmControl1, text = "Population Size: ")
+        lblPopulationSize.pack(side=LEFT)
+        
+        pop_size = tk.StringVar()
+        pop_size.set(100)
+        self.txtPopulationSize = Entry(frmControl1, textvariable=pop_size, width=10)
+        self.txtPopulationSize.pack(side=LEFT)
+
+        lblStopSize = Label(frmControl1, text = "Stop Size: ")
+        lblStopSize.pack(fill=Y, expand=False, side=LEFT)
+        
+        stop_size = tk.StringVar()
+        stop_size.set(200)
+        self.txtStopSize = Entry(frmControl1, textvariable=stop_size, width=10)
+        self.txtStopSize.pack(fill=Y, expand=False, side=LEFT)
+
+        lblMutaProb = Label(frmControl1, text = "Muation Probablity: ")
+        lblMutaProb.pack(fill=Y, expand=False, side=LEFT)
+        
+        muta_prob = tk.StringVar()
+        muta_prob.set(0.1)
+        self.txtMutaProb = Entry(frmControl1, textvariable=muta_prob, width=10)
+        self.txtMutaProb.pack(fill=Y, expand=False, side=LEFT)
+
         
     def import_problem(self):
         filename = filedialog.askopenfilename(title = "Select file",filetypes = (("text files","*.txt"),("all files","*.*")))
@@ -1582,7 +1615,10 @@ class MainWindow(Frame):
             self.problem.solve_by_greedy(overlap, "area_cost", local_search)    
 
         if method == "GA" :
-            self.problem.solve_by_ga(overlap)        
+            popu_size = int(self.txtPopulationSize.get())
+            stop_size = int(self.txtStopSize.get())
+            muta_prob = float(self.txtMutaProb.get())
+            self.problem.solve_by_ga(overlap, popu_size, stop_size, muta_prob)        
 
         end = time.time()
         self.display_problem(solution=True)
