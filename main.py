@@ -124,9 +124,6 @@ def build_packing_overlay_problem(rect_array, g):
     
     return mdl;    
 
-# Number of individuals in each generation 
-POPULATION_SIZE = 100
-  
 # Valid genes 
 GENES = '''abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP 
 QRSTUVWXYZ 1234567890, .-;:_!"#%&/()=?@${[]}'''
@@ -972,7 +969,8 @@ class Problem:
         board = deepcopy(self.board)
         squares = deepcopy(self.squares)
 
-        global POPULATION_SIZE 
+        # Number of individuals in each generation 
+        POPULATION_SIZE = 100
   
         #current generation 
         generation = 1
@@ -1028,29 +1026,43 @@ class Problem:
         board = deepcopy(self.board)
         squares = deepcopy(self.squares)
 
-        global POPULATION_SIZE 
-  
+        # Number of individuals in each generation 
+        POPULATION_SIZE = 100
+
         #current generation 
         generation = 1
     
         found = False
         population = [] 
+
+        min_fitness = 1000000000
+        min_generation_num = 0
     
         # create initial population 
         for _ in range(POPULATION_SIZE): 
             population.append(SquareIndividual([], board, squares)) 
-    
+
+        chromosome = []
         while not found: 
     
             # sort the population in increasing order of fitness score 
             population = sorted(population, key = lambda x:x.fitness) 
+
+            if population[0].fitness < min_fitness:
+                min_fitness = population[0].fitness
+                min_generation_num = generation 
+                chromosome = population[0].chromosome
+
+            if generation - min_generation_num > 200: # not updated                
+                found = True 
+                break
     
             # if the individual having lowest fitness score ie.  
             # 0 then we know that we have reached to the target 
             # and break the loop 
-            if population[0].fitness <= 0: 
-                found = True
-                break
+            # if population[0].fitness <= 0: 
+            #     found = True
+            #     break
     
             # Otherwise generate new offsprings for new generation 
             new_generation = [] 
@@ -1077,7 +1089,26 @@ class Problem:
             generation += 1
     
         
-        print("Generation: " + str(generation) + "\tString: " + "".join(map(str, population[0].chromosome)) + "\tFitness: " + str(population[0].fitness))            
+        print("Generation: " + str(generation) + "\tString: " + "".join(map(str, chromosome)) + "\tFitness: " + str(min_fitness))         
+
+        num_squares = len(squares)
+        for r in range(num_squares):
+            square = squares[r]
+            height = square.height
+            width = square.width
+            cost = square.cost
+
+            if chromosome[r] < 0 or chromosome[r + num_squares] < 0: 
+                row = -100; column = -100
+            else:
+                row = chromosome[r]; column = chromosome[r + num_squares]
+
+            squares[r] = Square(height, width, cost, row, column)     
+
+        self.obj_val = -min_fitness;        
+        self.squares = squares
+
+        return squares    
         
              
 class ProblemWindow:
