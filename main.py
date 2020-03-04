@@ -1044,6 +1044,7 @@ class Problem:
         for _ in range(POPULATION_SIZE): 
             population.append(SquareIndividual([], board, squares)) 
 
+        muta_prob1 = muta_prob
         chromosome = []
         while not found: 
     
@@ -1054,6 +1055,12 @@ class Problem:
                 min_fitness = population[0].fitness
                 min_generation_num = generation 
                 chromosome = population[0].chromosome
+
+            if (generation - min_generation_num) > stop_size / 2 and (generation - min_generation_num) < stop_size * 2 / 3: # there is no improvement
+                muta_prob1 = muta_prob * 3
+                print("Mutation is bigger") 
+            else:    
+                muta_prob1 = muta_prob
 
             if generation - min_generation_num > stop_size: # not updated                
                 found = True 
@@ -1081,7 +1088,7 @@ class Problem:
             for _ in range(s): 
                 parent1 = random.choice(population[:50]) 
                 parent2 = random.choice(population[:50]) 
-                child = parent1.mate(parent2, muta_prob) 
+                child = parent1.mate(parent2, muta_prob1) 
                 new_generation.append(child) 
     
             population = new_generation 
