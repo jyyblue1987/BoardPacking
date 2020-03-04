@@ -230,9 +230,9 @@ class SquareIndividual(object):
         '''
         square = self.squares[num]
         if flag == 1: # row                         
-            gene = random.randint(0, self.num_rows - square.height)
+            gene = random.randint(-2, self.num_rows - square.height)
         else:    
-            gene = random.randint(0, self.num_cols - square.width)
+            gene = random.randint(-2, self.num_cols - square.width)
 
         return gene 
   
@@ -313,7 +313,7 @@ class SquareIndividual(object):
             col = self.chromosome[r + num_squares]
             row = self.chromosome[r]
 
-            if col <= -1:    # dummy rectangle
+            if col <= -1 or row <= -1:    # dummy rectangle
                 continue
 
             total_cost += cost
