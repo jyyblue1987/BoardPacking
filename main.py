@@ -14,7 +14,14 @@ import os
 import random
 import colorsys
 from collections import namedtuple
-from docplex.mp.model import Model
+
+import warnings
+
+try:
+    from docplex.mp.model import Model
+except ImportError:
+    print('CPLEX Moudle is not installed')
+
 
 MAX_SQUARE_RATE = 2 / 3
 
@@ -955,6 +962,9 @@ class Problem:
         return sol_squares, obj_val        
 
     def solve_by_greedy(self, overlap, option, local_search):
+        if self.checkProblem() == False:
+            return
+
         board = deepcopy(self.board)
         squares = deepcopy(self.squares)
 
@@ -968,6 +978,9 @@ class Problem:
         self.obj_val = obj_val
 
     def solve_by_ga1(self, overlap):
+        if self.checkProblem() == False:
+            return
+            
         board = deepcopy(self.board)
         squares = deepcopy(self.squares)
 
