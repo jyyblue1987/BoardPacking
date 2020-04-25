@@ -501,7 +501,7 @@ class Problem:
             if self.obj_val > -1000000:
                 fp.write(str(self.obj_val) + "\n")     
     
-    def generate(self, class_num, num_rows, num_cols, num_squares, size_squares, chk_random):
+    def generate(self, class_num, num_rows, num_cols, num_squares, size_squares, chk_random, chk_cost_random, cost_array):
         self.board = []
         self.class_num = class_num 
         count = 0
@@ -556,7 +556,11 @@ class Problem:
                 min_cost = 1
 
             max_cost = (avg + 1) * width * height   
-            cost = random.randint(min_cost, max_cost)
+            if chk_cost_random :
+                cost = random.randint(min_cost, max_cost)
+            else :   
+                cost = cost_array[i]
+
             sqare = Square(height, width, cost, -1, -1)
             self.squares.append(sqare)
 
@@ -1218,16 +1222,6 @@ class ProblemWindow:
         self.chkRandom = Checkbutton(frmChkRandom, text="Random Squares Size", variable=self.chk_random,command=self.onCheckRandom)
         self.chkRandom.pack(side=LEFT)
 
-        # Multiple Instance        
-        frmNumInstance = Frame(frmMain, pady = 5)
-        frmNumInstance.pack(fill=X)
-
-        lblNumInstance = Label(frmNumInstance, text = "Count of Instance: ")
-        lblNumInstance.pack(side=LEFT)
-
-        self.txtNumInstance = Entry(frmNumInstance)
-        self.txtNumInstance.pack(side=RIGHT)
-
         frmChkCostRandom = Frame(frmMain, pady = 5)
         frmChkCostRandom.pack(fill=X)
 
@@ -1236,6 +1230,18 @@ class ProblemWindow:
 
         self.txtPredefinedCost = Entry(frmChkCostRandom)
         self.txtPredefinedCost.pack(side=RIGHT)
+
+        # Multiple Instance        
+        frmNumInstance = Frame(frmMain, pady = 5)
+        frmNumInstance.pack(fill=X)
+
+        lblNumInstance = Label(frmNumInstance, text = "Count of Instance: ")
+        lblNumInstance.pack(side=LEFT)
+
+        num_instance = tk.StringVar()
+        num_instance.set(self.num_instance)
+        self.txtNumInstance = Entry(frmNumInstance, textvariable=num_instance)
+        self.txtNumInstance.pack(side=RIGHT)
         
         frmButtons = Frame(frmMain, pady = 5)
         frmButtons.pack(fill = X, expand=True)
@@ -1287,15 +1293,10 @@ class ProblemWindow:
             else:    
                 self.size_squares = int(self.txtSizeSquares.get())                
         except:
-            valid = False   
+            valid = False
 
         try:
-            self.num_instance = int(self.txtNumInstance.get())
-        except:
-            valid = False     
-
-
-        try:
+            self.cost_array = []
             if self.chk_cost_random.get():                
                 self.cost_array = []
             else:    
@@ -1305,14 +1306,20 @@ class ProblemWindow:
                     messagebox.showerror("Invalid File Format", "Please input predefined cost.")
                     return
 
-                if len(elements) == self.num_instance:  # fixed cost
-                    for i in range(self.num_instance):
-                        self.cost_array[i] = int(elements[i])
+                if len(elements) == self.num_squares:  # fixed cost
+                    for i in range(self.num_squares):
+                        self.cost_array.append(int(elements[i]))
                 else:   # a predefined cost
-                    for i in range(self.num_instance):
-                        self.cost_array[i] = int(elements[0])
+                    for i in range(self.num_squares):
+                        self.cost_array.append(int(elements[0]))
         except:
             valid = False       
+               
+
+        try:
+            self.num_instance = int(self.txtNumInstance.get())
+        except:
+            valid = False     
         
         if valid:
             self.status = True
@@ -1656,10 +1663,19 @@ class MainWindow(Frame):
         num_squares = problem_dialog.num_squares
         size_squares = problem_dialog.size_squares
         chk_random = problem_dialog.chk_random.get()
+        chk_cost_random = problem_dialog.chk_cost_random.get()
+        cost_array = problem_dialog.cost_array
 
-        self.problem.generate(class_num, num_rows, num_columns, num_squares, size_squares, chk_random)
+        self.problem.generate(class_num, num_rows, num_columns, num_squares, size_squares, chk_random, chk_cost_random, cost_array)
         self.cnsBoard.delete("all")
         self.display_problem()
+
+        # generate multiple instance
+        if problem_dialog.num_instance < 1:
+            return
+
+        # for i in range(problem_dialog.num_instance):
+
 
     def refresh_board(self):            
         self.problem.refreshValues()
