@@ -1144,7 +1144,10 @@ class ProblemWindow:
         self.num_squares = 0
         self.size_squares = 0
         self.chk_random = IntVar()        
+
+        self.num_instance = 0
         self.chk_cost_random = IntVar()
+        self.cost_array = []
 
         self.status = False
         
@@ -1284,7 +1287,32 @@ class ProblemWindow:
             else:    
                 self.size_squares = int(self.txtSizeSquares.get())                
         except:
-            valid = False    
+            valid = False   
+
+        try:
+            self.num_instance = int(self.txtNumInstance.get())
+        except:
+            valid = False     
+
+
+        try:
+            if self.chk_cost_random.get():                
+                self.cost_array = []
+            else:    
+                str_cost = self.txtPredefinedCost.get()
+                elements = str_cost.split(",")
+                if len(elements) <= 0:
+                    messagebox.showerror("Invalid File Format", "Please input predefined cost.")
+                    return
+
+                if len(elements) == self.num_instance:  # fixed cost
+                    for i in range(self.num_instance):
+                        self.cost_array[i] = int(elements[i])
+                else:   # a predefined cost
+                    for i in range(self.num_instance):
+                        self.cost_array[i] = int(elements[0])
+        except:
+            valid = False       
         
         if valid:
             self.status = True
