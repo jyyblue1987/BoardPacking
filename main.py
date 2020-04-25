@@ -1585,6 +1585,7 @@ class MainWindow(Frame):
                                                     "GA",
                                                     "GA1",
                                                     ))
+        self.cb_method.bind('<<ComboboxSelected>>', self.on_change_method)    
         self.cb_method.set("GA")
         self.cb_method.pack(side=LEFT)
 
@@ -1663,6 +1664,7 @@ class MainWindow(Frame):
         self.btnBatchSolve = Button(frmControl1, text="Solve Batch", width=22, command=self.solve_batch_problem)
         self.btnBatchSolve.pack(fill=Y, expand=False, side=RIGHT)
 
+        self.on_change_method(1)
         
     def import_problem(self):
         filename = filedialog.askopenfilename(title = "Select file",filetypes = (("text files","*.txt"),("all files","*.*")))
@@ -2025,6 +2027,35 @@ class MainWindow(Frame):
         print(item_id, width, height, cost)
 
         self.display_problem()
+
+    def on_change_method(self, event):
+        method = self.cb_method.get()
+        if method == "MIP": 
+            self.chkLocalSearch.config(state='disabled') 
+
+        if method == "Brute Force" :
+            self.chkLocalSearch.config(state='disabled')
+
+        if method == "Greedy Arbitrary" :
+            self.chkLocalSearch.config(state='normal')
+            
+        if method == "Greedy Decreaing Width" :
+            self.chkLocalSearch.config(state='normal')
+
+        if method == "Greedy Decreaing Height" :
+            self.chkLocalSearch.config(state='normal')
+
+        if method == "Greedy Decreaing Area" :
+            self.chkLocalSearch.config(state='normal')
+
+        if method == "Greedy Decreaing Cost" :
+            self.chkLocalSearch.config(state='normal')
+
+        if method == "Greedy Decreaing Area * Cost" :
+            self.chkLocalSearch.config(state='normal')
+
+        if method == "GA" or method == "GA1":
+            self.chkLocalSearch.config(state='disabled') 
                 
 app = MainWindow()
 
