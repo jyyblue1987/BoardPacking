@@ -14,6 +14,8 @@ import os
 import random
 import colorsys
 from collections import namedtuple
+from os import listdir
+from os.path import isfile, join
 
 import warnings
 
@@ -1631,6 +1633,9 @@ class MainWindow(Frame):
         self.txtSelectProb = Entry(frmControl1, textvariable=select_prob, width=10)
         self.txtSelectProb.pack(fill=Y, expand=False, side=LEFT)
 
+        self.btnBatchSolve = Button(frmControl1, text="Solve Batch", width=22, command=self.solve_batch_problem)
+        self.btnBatchSolve.pack(fill=Y, expand=False, side=RIGHT)
+
         
     def import_problem(self):
         filename = filedialog.askopenfilename(title = "Select file",filetypes = (("text files","*.txt"),("all files","*.*")))
@@ -1695,12 +1700,10 @@ class MainWindow(Frame):
         else:
             print ("Successfully created the directory %s " % dir_path)
 
-        # for i in range(problem_dialog.num_instance):
-            
-
-           
-
-            
+        for i in range(problem_dialog.num_instance):
+            instance_name = "{}/board_instance_{}.txt".format(dir_path, i + 1)
+            self.problem.refreshValues()
+            self.problem.save(instance_name)
 
 
     def refresh_board(self):            
@@ -1752,6 +1755,33 @@ class MainWindow(Frame):
         elapsed = time.strftime('%H:%M:%S', time.gmtime(gap))
         self.master.title("Board Packing Problem" + " ------ Running Time = " + elapsed)
         
+    def solve_batch_problem(self):
+        dir_path = filedialog.askdirectory(title = "Select Directory")
+        if not dir_path:
+            return     
+
+        print(dir_path)       
+        onlyfiles = [f for f in listdir(dir_path) if isfile(join(dir_path, f))]
+
+        total_count = len(onlyfiles)
+        if total_count < 1:
+            messagebox.showerror("Invalid Directory", "There is no file in this directory")
+            return;
+
+        start = time.time()
+
+        for i in range(total_count):
+            path = "{}/{}".format(dir_path, onlyfiles[i])
+            self.problem.load(path)
+            self.solve_problem()
+            self.problem.save(path)
+
+        end = time.time()
+
+        gap = (end - start) / total_count
+        elapsed = time.strftime('%H:%M:%S', time.gmtime(gap))
+        self.master.title("Board Packing Problem: Instance Count = " + str(total_count)  + " ------ Average Running Time = " + elapsed)
+
     def display_problem(self, solution = False):
         canvas = self.cnsBoard
         board = self.problem.board
