@@ -1770,11 +1770,23 @@ class MainWindow(Frame):
 
         start = time.time()
 
+        method = self.cb_method.get()
+        output_dir = "{}/{}".format(dir_path, method)
+
+        try:
+            os.mkdir(output_dir)
+        except OSError:
+            print ("Creation of the directory %s failed" % output_dir)
+        else:
+            print ("Successfully created the directory %s " % output_dir)
+
+        
         for i in range(total_count):
             path = "{}/{}".format(dir_path, onlyfiles[i])
             self.problem.load(path)
             self.solve_problem()
-            self.problem.save(path)
+            save_path = "{}/{}".format(output_dir, onlyfiles[i])
+            self.problem.save(save_path)
 
         end = time.time()
 
