@@ -133,82 +133,6 @@ def build_packing_overlay_problem(rect_array, g):
     
     return mdl;    
 
-# Valid genes 
-GENES = '''abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP 
-QRSTUVWXYZ 1234567890, .-;:_!"#%&/()=?@${[]}'''
-
-# Target string to be generated 
-TARGET = "Board Packing Problem - GA"
-
-class Individual(object): 
-    ''' 
-    Class representing individual in population 
-    '''
-    def __init__(self, chromosome): 
-        self.chromosome = chromosome  
-        self.fitness = self.cal_fitness() 
-  
-    @classmethod
-    def mutated_genes(self): 
-        ''' 
-        create random genes for mutation 
-        '''
-        global GENES 
-        gene = random.choice(GENES) 
-        return gene 
-  
-    @classmethod
-    def create_gnome(self): 
-        ''' 
-        create chromosome or string of genes 
-        '''
-        global TARGET 
-        gnome_len = len(TARGET) 
-        return [self.mutated_genes() for _ in range(gnome_len)] 
-  
-    def mate(self, par2, muta_prob): 
-        ''' 
-        Perform mating and produce new offspring 
-        '''
-        
-        crit_prob = (1 - muta_prob) / 2
-        # chromosome for offspring 
-        child_chromosome = [] 
-        for gp1, gp2 in zip(self.chromosome, par2.chromosome):     
-  
-            # random probability   
-            prob = random.random() 
-  
-            # if prob is less than 0.45, insert gene 
-            # from parent 1  
-            if prob < crit_prob: 
-                child_chromosome.append(gp1) 
-  
-            # if prob is between 0.45 and 0.90, insert 
-            # gene from parent 2 
-            elif prob < crit_prob * 2: 
-                child_chromosome.append(gp2) 
-  
-            # otherwise insert random gene(mutate),  
-            # for maintaining diversity 
-            else: 
-                child_chromosome.append(self.mutated_genes()) 
-  
-        # create new Individual(offspring) using  
-        # generated chromosome for offspring 
-        return Individual(child_chromosome) 
-  
-    def cal_fitness(self): 
-        ''' 
-        Calculate fittness score, it is the number of 
-        characters in string which differ from target 
-        string. 
-        '''
-        global TARGET 
-        fitness = 0
-        for gs, gt in zip(self.chromosome, TARGET): 
-            if gs != gt: fitness+= 1
-        return fitness 
 
 class SquareIndividual(object): 
     ''' 
@@ -293,13 +217,53 @@ class SquareIndividual(object):
                 if num >= num_squares:
                     child_chromosome.append(self.mutated_genes(num - num_squares, 2))
                 else:    
-                    child_chromosome.append(self.mutated_genes(num - num_squares, 1))
+                    child_chromosome.append(self.mutated_genes(num, 1))
 
             num += 1    
   
         # create new Individual(offspring) using  
         # generated chromosome for offspring 
         return SquareIndividual(child_chromosome, self.board, self.squares) 
+
+    def crossover(self, par2): 
+        # chromosome for offspring 
+        num_squares = len(self.squares)
+
+        child_chromosome = [] 
+        num = 0
+        for gp1, gp2 in zip(self.chromosome, par2.chromosome):       
+            # random probability   
+            prob = random.random() 
+  
+            # if prob is less than 0.5, insert gene 
+            # from parent 1  
+            if prob < 0.5: 
+                child_chromosome.append(gp1) 
+  
+            # if prob is between 0.5 and 1.0, insert 
+            # gene from parent 2 
+            else: 
+                child_chromosome.append(gp2) 
+  
+        # create new Individual(offspring) using  
+        # generated chromosome for offspring 
+        return SquareIndividual(child_chromosome, self.board, self.squares) 
+
+    def _mutate(self): 
+        num = random.randrange(0, len(self.chromosome))        
+        # chromosome for offspring 
+        num_squares = len(self.squares)
+
+        gene = -1
+        if num >= num_squares:
+            gene = self.mutated_genes(num - num_squares, 2)
+        else:    
+            gene = self.mutated_genes(num, 1)
+
+        self.chromosome[num] = gene     
+
+        self.fitness = self.cal_fitness() 
+        
         
     def cal_fitness(self): 
         ''' 
@@ -1136,9 +1100,128 @@ class Problem:
         self.obj_val = -min_fitness;        
         self.squares = squares
 
-        return squares    
+        return squares
+
+    
         
-             
+    def solve_by_ga2(self, overlap, popu_size, stop_size, muta_prob, select_prob):
+        board = deepcopy(self.board)
+        squares = deepcopy(self.squares)
+
+        # Number of individuals in each generation 
+        POPULATION_SIZE = popu_size
+
+        #current generation 
+        generation = 1
+    
+        found = False
+        population = [] 
+
+        min_fitness = 1000000000
+        min_generation_num = 0
+    
+        # create initial population 
+        for _ in range(POPULATION_SIZE): 
+            population.append(SquareIndividual([], board, squares)) 
+
+        muta_prob1 = muta_prob
+        chromosome = []
+        while not found: 
+    
+            # sort the population in increasing order of fitness score 
+            population = sorted(population, key = lambda x:x.fitness) 
+            print("Generation: " + str(generation) + "\tString: " + ",".join(map(str, population[0].chromosome)) + "\tFitness: " + str(population[0].fitness)) 
+
+            if population[0].fitness < min_fitness:
+                min_fitness = population[0].fitness
+                min_generation_num = generation 
+                chromosome = deepcopy(population[0].chromosome)
+
+            if (generation - min_generation_num) > stop_size / 2 and (generation - min_generation_num) < stop_size * 2 / 3: # there is no improvement
+                muta_prob1 = muta_prob * 3
+                print("Mutation is bigger") 
+            else:    
+                muta_prob1 = muta_prob
+
+            if generation - min_generation_num > stop_size: # not updated                
+                found = True 
+                break
+    
+            # if the individual having lowest fitness score ie.  
+            # 0 then we know that we have reached to the target 
+            # and break the loop 
+            # if population[0].fitness <= 0: 
+            #     found = True
+            #     break
+    
+            # Otherwise generate new offsprings for new generation 
+            new_generation = [] 
+    
+            # Perform Elitism, that mean 10% of fittest population 
+            # goes to the next generation 
+            s = int(POPULATION_SIZE * select_prob) 
+            new_generation.extend(population[:s]) 
+    
+            # Cross Over
+            s = POPULATION_SIZE - s
+            fitness_sum = -sum(row.fitness for row in population)
+            
+            for _ in range(s): 
+                # roulette wheel selection
+                # select parent1
+                pick = random.uniform(0, fitness_sum)
+                current = 0
+                for row in population:
+                    current -= row.fitness
+                    if current > pick:
+                        parent1 = row   
+                        break;     
+
+                # select parent1
+                pick = random.uniform(0, fitness_sum)
+                current = 0
+                for row in population:
+                    current -= row.fitness
+                    if current > pick:
+                        parent2 = row                
+                        break;
+                        
+                child = parent1.crossover(parent2) 
+
+                new_generation.append(child) 
+                
+            # Mutation
+            for i in range(len(new_generation)): 
+                rand = random.random()
+                if rand < muta_prob1:
+                    new_generation[i]._mutate()
+
+            population = new_generation 
+    
+            generation += 1
+    
+        
+        print("Generation: " + str(generation) + "\tString: " + "".join(map(str, chromosome)) + "\tFitness: " + str(min_fitness))         
+
+        num_squares = len(squares)
+        for r in range(num_squares):
+            square = squares[r]
+            height = square.height
+            width = square.width
+            cost = square.cost
+
+            if chromosome[r] < 0 or chromosome[r + num_squares] < 0: 
+                row = -100; column = -100
+            else:
+                row = chromosome[r]; column = chromosome[r + num_squares]
+
+            squares[r] = Square(height, width, cost, row, column)     
+
+        self.obj_val = -min_fitness;        
+        self.squares = squares
+
+        return squares
+
 class ProblemWindow:
     def __init__(self, parent):
         self.top = tk.Toplevel(parent)
@@ -1746,7 +1829,7 @@ class MainWindow(Frame):
             stop_size = int(self.txtStopSize.get())
             muta_prob = float(self.txtMutaProb.get())
             select_prob = float(self.txtSelectProb.get())
-            self.problem.solve_by_ga(overlap, popu_size, stop_size, muta_prob, select_prob)        
+            self.problem.solve_by_ga2(overlap, popu_size, stop_size, muta_prob, select_prob)        
 
         end = time.time()
         self.display_problem(solution=True)
