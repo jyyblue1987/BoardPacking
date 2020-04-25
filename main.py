@@ -1143,7 +1143,8 @@ class ProblemWindow:
         self.num_columns = 0
         self.num_squares = 0
         self.size_squares = 0
-        self.chk_random = IntVar()
+        self.chk_random = IntVar()        
+        self.chk_cost_random = IntVar()
 
         self.status = False
         
@@ -1151,7 +1152,7 @@ class ProblemWindow:
 
     def initUI(self):
         top = self.top
-        top.geometry("280x260+600+400")
+        top.geometry("280x360+600+400")
         
         frmMain = Frame(top, padx = 10, pady = 5)
         frmMain.pack()
@@ -1213,6 +1214,25 @@ class ProblemWindow:
 
         self.chkRandom = Checkbutton(frmChkRandom, text="Random Squares Size", variable=self.chk_random,command=self.onCheckRandom)
         self.chkRandom.pack(side=LEFT)
+
+        # Multiple Instance        
+        frmNumInstance = Frame(frmMain, pady = 5)
+        frmNumInstance.pack(fill=X)
+
+        lblNumInstance = Label(frmNumInstance, text = "Count of Instance: ")
+        lblNumInstance.pack(side=LEFT)
+
+        self.txtNumInstance = Entry(frmNumInstance)
+        self.txtNumInstance.pack(side=RIGHT)
+
+        frmChkCostRandom = Frame(frmMain, pady = 5)
+        frmChkCostRandom.pack(fill=X)
+
+        self.chkCostRandom = Checkbutton(frmChkCostRandom, text="Random Cost", variable=self.chk_cost_random,command=self.onCheckRandomCost)
+        self.chkCostRandom.pack(side=LEFT)
+
+        self.txtPredefinedCost = Entry(frmChkCostRandom)
+        self.txtPredefinedCost.pack(side=RIGHT)
         
         frmButtons = Frame(frmMain, pady = 5)
         frmButtons.pack(fill = X, expand=True)
@@ -1228,6 +1248,12 @@ class ProblemWindow:
             self.txtSizeSquares.config(state='disabled') 
         else:    
             self.txtSizeSquares.config(state='normal') 
+
+    def onCheckRandomCost(self):
+        if self.chk_cost_random.get():
+            self.txtPredefinedCost.config(state='disabled') 
+        else:    
+            self.txtPredefinedCost.config(state='normal')         
         
     def ok(self):
         valid = True
