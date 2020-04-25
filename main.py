@@ -1674,7 +1674,33 @@ class MainWindow(Frame):
         if problem_dialog.num_instance < 1:
             return
 
+        # generate directory name
+        rect_size_str = ""
+        if chk_random:
+            rect_size_str = "rnd"
+        else:    
+            rect_size_str = "{}x{}".format(size_squares, size_squares)
+
+        cost_str = ""
+        if chk_cost_random:
+            cost_str = "rnd"
+        else:    
+            cost_str = "fixed"
+        dir_path = "{}/IC{}_{}x{}_{}R_S{}_cost_{}".format(os.getcwd(), class_num, num_rows, num_columns, num_squares, rect_size_str, cost_str)    
+        
+        try:
+            os.mkdir(dir_path)
+        except OSError:
+            print ("Creation of the directory %s failed" % dir_path)
+        else:
+            print ("Successfully created the directory %s " % dir_path)
+
         # for i in range(problem_dialog.num_instance):
+            
+
+           
+
+            
 
 
     def refresh_board(self):            
