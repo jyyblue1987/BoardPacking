@@ -947,164 +947,7 @@ class Problem:
         self.squares = sol_squares
         self.obj_val = obj_val
 
-    def solve_by_ga1(self, overlap):
-        if self.checkProblem() == False:
-            return
-            
-        board = deepcopy(self.board)
-        squares = deepcopy(self.squares)
-
-        # Number of individuals in each generation 
-        POPULATION_SIZE = 100
-  
-        #current generation 
-        generation = 1
-    
-        found = False
-        population = [] 
-    
-        # create initial population 
-        for _ in range(POPULATION_SIZE): 
-            gnome = Individual.create_gnome() 
-            population.append(Individual(gnome)) 
-    
-        while not found: 
-    
-            # sort the population in increasing order of fitness score 
-            population = sorted(population, key = lambda x:x.fitness) 
-    
-            # if the individual having lowest fitness score ie.  
-            # 0 then we know that we have reached to the target 
-            # and break the loop 
-            if population[0].fitness <= 0: 
-                found = True
-                break
-    
-            # Otherwise generate new offsprings for new generation 
-            new_generation = [] 
-    
-            # Perform Elitism, that mean 10% of fittest population 
-            # goes to the next generation 
-            s = int((10*POPULATION_SIZE)/100) 
-            new_generation.extend(population[:s]) 
-    
-            # From 50% of fittest population, Individuals  
-            # will mate to produce offspring 
-            s = int((90*POPULATION_SIZE)/100) 
-
-            for _ in range(s): 
-                parent1 = random.choice(population[:50]) 
-                parent2 = random.choice(population[:50]) 
-                child = parent1.mate(parent2) 
-                new_generation.append(child) 
-    
-            population = new_generation 
-    
-            print("Generation: " + str(generation) + "\tString: " + "".join(population[0].chromosome) + "\tFitness: " + str(population[0].fitness)) 
-    
-            generation += 1
-    
-        
-        print("Generation: " + str(generation) + "\tString: " + "".join(population[0].chromosome) + "\tFitness: " + str(population[0].fitness))        
-
     def solve_by_ga(self, overlap, popu_size, stop_size, muta_prob, select_prob):
-        board = deepcopy(self.board)
-        squares = deepcopy(self.squares)
-
-        # Number of individuals in each generation 
-        POPULATION_SIZE = popu_size
-
-        #current generation 
-        generation = 1
-    
-        found = False
-        population = [] 
-
-        min_fitness = 1000000000
-        min_generation_num = 0
-    
-        # create initial population 
-        for _ in range(POPULATION_SIZE): 
-            population.append(SquareIndividual([], board, squares)) 
-
-        muta_prob1 = muta_prob
-        chromosome = []
-        while not found: 
-    
-            # sort the population in increasing order of fitness score 
-            population = sorted(population, key = lambda x:x.fitness) 
-
-            if population[0].fitness < min_fitness:
-                min_fitness = population[0].fitness
-                min_generation_num = generation 
-                chromosome = population[0].chromosome
-
-            if (generation - min_generation_num) > stop_size / 2 and (generation - min_generation_num) < stop_size * 2 / 3: # there is no improvement
-                muta_prob1 = muta_prob * 3
-                print("Mutation is bigger") 
-            else:    
-                muta_prob1 = muta_prob
-
-            if generation - min_generation_num > stop_size: # not updated                
-                found = True 
-                break
-    
-            # if the individual having lowest fitness score ie.  
-            # 0 then we know that we have reached to the target 
-            # and break the loop 
-            # if population[0].fitness <= 0: 
-            #     found = True
-            #     break
-    
-            # Otherwise generate new offsprings for new generation 
-            new_generation = [] 
-    
-            # Perform Elitism, that mean 10% of fittest population 
-            # goes to the next generation 
-            s = int(POPULATION_SIZE * select_prob) 
-            new_generation.extend(population[:s]) 
-    
-            # From 50% of fittest population, Individuals  
-            # will mate to produce offspring 
-            s = POPULATION_SIZE - s
-
-            for _ in range(s): 
-                parent1 = random.choice(population[:50]) 
-                parent2 = random.choice(population[:50]) 
-                child = parent1.mate(parent2, muta_prob1) 
-                new_generation.append(child) 
-    
-            population = new_generation 
-    
-            print("Generation: " + str(generation) + "\tString: " + ",".join(map(str, population[0].chromosome)) + "\tFitness: " + str(population[0].fitness)) 
-    
-            generation += 1
-    
-        
-        print("Generation: " + str(generation) + "\tString: " + "".join(map(str, chromosome)) + "\tFitness: " + str(min_fitness))         
-
-        num_squares = len(squares)
-        for r in range(num_squares):
-            square = squares[r]
-            height = square.height
-            width = square.width
-            cost = square.cost
-
-            if chromosome[r] < 0 or chromosome[r + num_squares] < 0: 
-                row = -100; column = -100
-            else:
-                row = chromosome[r]; column = chromosome[r + num_squares]
-
-            squares[r] = Square(height, width, cost, row, column)     
-
-        self.obj_val = -min_fitness;        
-        self.squares = squares
-
-        return squares
-
-    
-        
-    def solve_by_ga2(self, overlap, popu_size, stop_size, muta_prob, select_prob):
         board = deepcopy(self.board)
         squares = deepcopy(self.squares)
 
@@ -1221,7 +1064,106 @@ class Problem:
         self.squares = squares
 
         return squares
+    
 
+    def solve_by_ga1(self, overlap, popu_size, stop_size, muta_prob, select_prob):
+        board = deepcopy(self.board)
+        squares = deepcopy(self.squares)
+
+        # Number of individuals in each generation 
+        POPULATION_SIZE = popu_size
+
+        #current generation 
+        generation = 1
+    
+        found = False
+        population = [] 
+
+        min_fitness = 1000000000
+        min_generation_num = 0
+    
+        # create initial population 
+        for _ in range(POPULATION_SIZE): 
+            population.append(SquareIndividual([], board, squares)) 
+
+        muta_prob1 = muta_prob
+        chromosome = []
+        while not found: 
+    
+            # sort the population in increasing order of fitness score 
+            population = sorted(population, key = lambda x:x.fitness) 
+
+            if population[0].fitness < min_fitness:
+                min_fitness = population[0].fitness
+                min_generation_num = generation 
+                chromosome = population[0].chromosome
+
+            if (generation - min_generation_num) > stop_size / 2 and (generation - min_generation_num) < stop_size * 2 / 3: # there is no improvement
+                muta_prob1 = muta_prob * 3
+                print("Mutation is bigger") 
+            else:    
+                muta_prob1 = muta_prob
+
+            if generation - min_generation_num > stop_size: # not updated                
+                found = True 
+                break
+    
+            # if the individual having lowest fitness score ie.  
+            # 0 then we know that we have reached to the target 
+            # and break the loop 
+            # if population[0].fitness <= 0: 
+            #     found = True
+            #     break
+    
+            # Otherwise generate new offsprings for new generation 
+            new_generation = [] 
+    
+            # Perform Elitism, that mean 10% of fittest population 
+            # goes to the next generation 
+            s = int(POPULATION_SIZE * select_prob) 
+            new_generation.extend(population[:s]) 
+    
+            # From 50% of fittest population, Individuals  
+            # will mate to produce offspring 
+            s = POPULATION_SIZE - s
+
+            for _ in range(s): 
+                parent1 = random.choice(population[:50]) 
+                parent2 = random.choice(population[:50]) 
+                child = parent1.mate(parent2, muta_prob1) 
+                new_generation.append(child) 
+    
+            population = new_generation 
+    
+            print("Generation: " + str(generation) + "\tString: " + ",".join(map(str, population[0].chromosome)) + "\tFitness: " + str(population[0].fitness)) 
+    
+            generation += 1
+    
+        
+        print("Generation: " + str(generation) + "\tString: " + "".join(map(str, chromosome)) + "\tFitness: " + str(min_fitness))         
+
+        num_squares = len(squares)
+        for r in range(num_squares):
+            square = squares[r]
+            height = square.height
+            width = square.width
+            cost = square.cost
+
+            if chromosome[r] < 0 or chromosome[r + num_squares] < 0: 
+                row = -100; column = -100
+            else:
+                row = chromosome[r]; column = chromosome[r + num_squares]
+
+            squares[r] = Square(height, width, cost, row, column)     
+
+        self.obj_val = -min_fitness;        
+        self.squares = squares
+
+        return squares
+
+    
+        
+    
 class ProblemWindow:
     def __init__(self, parent):
         self.top = tk.Toplevel(parent)
@@ -1640,7 +1582,9 @@ class MainWindow(Frame):
                                                     "Greedy Decreaing Area", 
                                                     "Greedy Decreaing Cost", 
                                                     "Greedy Decreaing Area * Cost",
-                                                    "GA"))
+                                                    "GA",
+                                                    "GA1",
+                                                    ))
         self.cb_method.set("GA")
         self.cb_method.pack(side=LEFT)
 
@@ -1824,12 +1768,15 @@ class MainWindow(Frame):
         if method == "Greedy Decreaing Area * Cost" :
             self.problem.solve_by_greedy(overlap, "area_cost", local_search)    
 
-        if method == "GA" :
+        if method == "GA" or method == "GA1":
             popu_size = int(self.txtPopulationSize.get())
             stop_size = int(self.txtStopSize.get())
             muta_prob = float(self.txtMutaProb.get())
             select_prob = float(self.txtSelectProb.get())
-            self.problem.solve_by_ga2(overlap, popu_size, stop_size, muta_prob, select_prob)        
+            if method == "GA":
+                self.problem.solve_by_ga(overlap, popu_size, stop_size, muta_prob, select_prob)        
+            if method == "GA1":
+                self.problem.solve_by_ga1(overlap, popu_size, stop_size, muta_prob, select_prob)        
 
         end = time.time()
         self.display_problem(solution=True)
